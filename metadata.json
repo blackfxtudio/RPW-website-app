@@ -1,0 +1,7 @@
+{
+  "name": "ROTO PAINT WALA",
+  "description": "Production-focused rotoscopy, digital paint, and VFX support studio network.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
