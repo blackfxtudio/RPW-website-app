@@ -20,6 +20,20 @@ export interface PortfolioShowreelItem {
   featured?: boolean;
 }
 
+export interface VfxBreakdownItem {
+  id: string;
+  title: string;
+  category: 'Roto' | 'Digital Paint' | 'Wire Removal' | 'Beauty & De-Aging' | 'Stereo 3D' | 'Full Comp';
+  tag: string;
+  beforeImage: string;
+  afterImage: string;
+  resolution: string;
+  turnaroundTime: string;
+  software: string[];
+  description: string;
+  featured?: boolean;
+}
+
 export interface TeamMember {
   id: string;
   name: string;
@@ -41,6 +55,19 @@ export interface ProjectPoster {
   services: string[];
   posterUrl: string;
   badge?: string;
+  highlight?: string;
+}
+
+export interface MoviePosterItem {
+  id: string;
+  title: string;
+  year: string;
+  category: string;
+  studio: string;
+  posterUrl: string;
+  tag: string;
+  vfxWork: string[];
+  aspectRatio?: string;
   highlight?: string;
 }
 
@@ -103,7 +130,7 @@ export interface WhyPillarItem {
 
 export interface SocialLinkItem {
   id: string;
-  platform: 'facebook' | 'x' | 'instagram' | 'youtube' | 'reddit' | 'discord' | 'linkedin' | 'google' | 'custom';
+  platform: 'facebook' | 'x' | 'instagram' | 'youtube' | 'reddit' | 'discord' | 'linkedin' | 'google' | 'whatsapp' | 'custom';
   label: string;
   url: string;
   enabled: boolean;
@@ -122,6 +149,8 @@ export interface SiteConfig {
   accentColor: string;
   supportEmail: string;
   connectPortalUrl: string;
+  whatsappNumber?: string;
+  whatsappUrl?: string;
 
   // Hero Section
   heroEyebrow: string;
@@ -180,6 +209,37 @@ export interface SiteConfig {
   faqHeading: string;
   faqHeadingHighlight: string;
   faqs: FAQItem[];
+
+  // Portfolio & Feature Films
+  portfolioReels?: PortfolioShowreelItem[];
+  collaborationTagline?: string;
+  collaborationSubDescription?: string;
+  vfxBreakdowns?: VfxBreakdownItem[];
+  moviePosters?: MoviePosterItem[];
+  homePostersHeadline?: string;
+  homePostersHeadlineLine1?: string;
+  homePostersHeadlineLine2?: string;
+  homePostersHeadlineLine3?: string;
+  homePostersSubheadline?: string;
+  homePostersDescription?: string;
+  homePostersCtaText?: string;
+  collageTiles?: Array<{
+    id: string;
+    title: string;
+    category: string;
+    image: string;
+    videoUrl: string;
+    badge: string;
+    glowColor: string;
+  }>;
+  featureFilms?: ProjectPoster[];
+
+  // RPW-Connect 3D Features Customization
+  rpwFeatureImages?: Record<string, string>;
+  rpwFeatureOverrides?: Record<string, { title?: string; shortDesc?: string; category?: string; imageSrc?: string; badgeText?: string }>;
+  rpwShowcaseAutoRotate?: boolean;
+  rpwShowcaseRotateInterval?: number;
+  rpwShowcaseSpeed?: number;
 
   // Final CTA & Footer
   finalCtaEyebrow: string;

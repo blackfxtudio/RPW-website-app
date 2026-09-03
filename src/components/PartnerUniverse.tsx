@@ -1,28 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { PartnerStudio } from '../types';
 import { 
-  ShieldCheck, 
-  Mail, 
-  Globe, 
-  Search, 
-  Sparkles, 
-  Building2, 
-  Network, 
-  LayoutGrid, 
-  Radio,
-  Paintbrush,
-  Eraser,
-  Scissors,
-  MousePointer2,
-  ZoomIn,
-  Pipette,
-  PenTool,
-  Layers,
-  Crop,
-  Sliders,
+  Paintbrush, 
+  Eraser, 
+  Scissors, 
+  MousePointer2, 
+  ZoomIn, 
+  Pipette, 
+  PenTool, 
+  Layers, 
+  Crop, 
+  Wand2, 
   Crosshair,
-  Wand2,
-  Edit3
+  Edit3,
+  CheckCircle2,
+  X,
+  Sparkles,
+  Send
 } from 'lucide-react';
 import { InfographicNetwork } from './InfographicNetwork';
 import { useSiteConfig } from '../context/SiteConfigContext';
@@ -32,12 +26,13 @@ interface PartnerUniverseProps {
   onUpdatePartnerCount: (count: number) => void;
 }
 
-const RPW_API = 'https://script.google.com/macros/s/AKfycbw-x93k8hVJYRNg8AsBILa9s7xSHb-egJ6-ilxK9iXEV4LkvtqMH7u1N0xVWeQv0DjO/exec';
-
 export const PartnerUniverse: React.FC<PartnerUniverseProps> = ({ onShowToast, onUpdatePartnerCount }) => {
   const { config, isEditorOpen, setActiveEditTarget } = useSiteConfig();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState<'infographic' | 'grid'>('infographic');
+  const [popupNotice, setPopupNotice] = useState<{
+    open: boolean;
+    studioName: string;
+    logo?: string;
+  } | null>(null);
 
   const partners = config.partners;
 
@@ -45,59 +40,108 @@ export const PartnerUniverse: React.FC<PartnerUniverseProps> = ({ onShowToast, o
     onUpdatePartnerCount(partners.length);
   }, [partners.length, onUpdatePartnerCount]);
 
-  const notifyPartnerClick = async (partner: PartnerStudio) => {
+  // Auto-dismiss popup after 4.5 seconds
+  useEffect(() => {
+    if (!popupNotice?.open) return;
+    const timer = setTimeout(() => {
+      setPopupNotice(null);
+    }, 4500);
+    return () => clearTimeout(timer);
+  }, [popupNotice]);
+
+  const handlePartnerClick = async (partner: PartnerStudio) => {
+    const studioName = partner.studioName || 'Partner Studio';
+
+    // 1. Immediately display the requested popup message
+    setPopupNotice({
+      open: true,
+      studioName,
+      logo: partner.logo,
+    });
+    onShowToast('Thankyou for your interest we will notify our partnered studio');
+
+    // 2. Dispatch secure server-side email notifications
     try {
-      fetch(RPW_API, {
+      fetch('/api/partner/notify-click', {
         method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           studioName: partner.studioName || '',
-          email: partner.email || '',
+          partnerEmail: partner.email || '',
           website: partner.website || '',
+          region: partner.region || '',
+          speciality: partner.speciality || '',
         }),
-      }).catch((err) => console.log('Partner beacon notice:', err));
+      }).catch((err) => {
+        console.warn('[RPW-NETWORK] Notice dispatch caught:', err);
+      });
     } catch (err) {
-      console.log('Notification beacon err:', err);
+      console.warn('[RPW-NETWORK] Failed to notify backend:', err);
     }
   };
-
-  const handlePartnerClick = (partner: PartnerStudio) => {
-    notifyPartnerClick(partner);
-
-    if (!partner.email || partner.email === 'tom@blackfx.net') {
-      onShowToast(`Dispatching inquiry to RPW Network Central Dispatch for ${partner.studioName}`);
-      window.open(
-        `mailto:tom@blackfx.net?subject=${encodeURIComponent(
-          `RPW Network Allocation — ${partner.studioName}`
-        )}&body=${encodeURIComponent(
-          `Hi RPW Dispatch,\n\nI would like to allocate VFX shots with ${partner.studioName} through the Roto Paint Wala production pipeline.\n\nProject Brief:\n- Target Shot Count:\n- Service: Rotoscopy / Digital Paint / Cleanup\n- Delivery Deadline:\n\nBest Regards,`
-        )}`,
-        '_blank'
-      );
-      return;
-    }
-
-    const studioName = partner.studioName || 'Partner Studio';
-    const subject = encodeURIComponent(`Roto Paint Wala Network — Collaboration with ${studioName}`);
-    const body = encodeURIComponent(
-      `Hi ${studioName},\n\nI came across your studio through the Roto Paint Wala collective network and would like to discuss an active production collaboration.\n\nProject Details:\n- Shot Volume:\n- Resolution:\n- Target Delivery Date:\n\nBest,\n`
-    );
-
-    window.open(`mailto:${encodeURIComponent(partner.email)}?subject=${subject}&body=${body}`, '_blank');
-    onShowToast(`Dispatching collaboration email to ${studioName}`);
-  };
-
-  const filteredPartners = partners.filter(
-    (p) =>
-      p.studioName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (p.speciality && p.speciality.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (p.region && p.region.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
 
   return (
     <section id="partners" className="py-20 sm:py-28 px-4 sm:px-8 md:px-12 relative z-10 overflow-hidden">
       {/* ========================================================================= */}
-      {/* FLOATING VFX INDUSTRY BACKGROUND ICONS (10% - 20% Opacity)                 */}
+      {/* POPUP MODAL: "THANK YOU FOR YOUR INTEREST WE WILL NOTIFY OUR PARTNERED STUDIO" */}
+      {/* ========================================================================= */}
+      {popupNotice?.open && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
+          onClick={() => setPopupNotice(null)}
+        >
+          <div 
+            className="relative w-full max-w-md bg-[#08111a] border-2 border-[#66fcf1] rounded-2xl p-6 sm:p-7 shadow-[0_0_50px_rgba(102,252,241,0.35)] text-center animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close button */}
+            <button
+              onClick={() => setPopupNotice(null)}
+              className="absolute top-4 right-4 p-1.5 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-all"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Glowing Icon & Studio Logo Header */}
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <div className="w-14 h-14 rounded-full bg-[#66fcf1]/10 border-2 border-[#66fcf1] flex items-center justify-center shadow-[0_0_20px_rgba(102,252,241,0.4)]">
+                {popupNotice.logo ? (
+                  <img src={popupNotice.logo} alt={popupNotice.studioName} className="w-9 h-9 object-contain" />
+                ) : (
+                  <CheckCircle2 className="w-7 h-7 text-[#66fcf1]" />
+                )}
+              </div>
+            </div>
+
+            {/* Studio Badge */}
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#66fcf1]/10 border border-[#66fcf1]/30 text-[#66fcf1] text-[11px] font-mono font-bold uppercase tracking-wider mb-3">
+              <Sparkles className="w-3.5 h-3.5 text-[#66fcf1]" />
+              <span>{popupNotice.studioName}</span>
+            </div>
+
+            {/* The exact requested popup message */}
+            <h3 className="font-heading text-lg sm:text-xl font-bold text-white leading-snug mb-2">
+              Thankyou for your interest we will notify our partnered studio
+            </h3>
+
+            <p className="text-xs sm:text-sm text-[#9daab4] leading-relaxed mb-6 font-sans">
+              An automated notification has been dispatched to the studio production desk and RPW Network Dispatch (<code className="text-[#66fcf1]">rotopaintwala@gmail.com</code>).
+            </p>
+
+            {/* Action button */}
+            <button
+              onClick={() => setPopupNotice(null)}
+              className="w-full py-3 px-6 rounded-xl bg-gradient-to-r from-[#66fcf1] to-[#45a29e] text-[#05070b] font-heading font-extrabold text-xs uppercase tracking-wider hover:shadow-[0_0_25px_rgba(102,252,241,0.5)] transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <CheckCircle2 className="w-4 h-4" />
+              <span>Got it, Thank You</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* FLOATING VFX INDUSTRY BACKGROUND ICONS (Subtle 10-15% Opacity)              */}
       {/* ========================================================================= */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
         {/* Paint tool (Top Left) */}
@@ -157,142 +201,58 @@ export const PartnerUniverse: React.FC<PartnerUniverseProps> = ({ onShowToast, o
       </div>
 
       <div className="max-w-7xl mx-auto relative z-10">
-        {/* Section Heading with Poppins Bold & updated Tagline */}
-        <div className="text-center max-w-4xl mx-auto mb-10 sm:mb-14 relative">
-          {/* In-place edit button */}
-          {isEditorOpen && (
-            <div className="absolute top-0 right-0">
-              <button
-                onClick={() => setActiveEditTarget('partners')}
-                className="flex items-center gap-1.5 px-3 py-1 rounded-md bg-[#66fcf1] text-[#05070b] text-xs font-bold shadow-[0_0_15px_rgba(102,252,241,0.4)]"
-              >
-                <Edit3 className="w-3.5 h-3.5" />
-                <span>Edit Network</span>
-              </button>
-            </div>
-          )}
-
-          <div className="inline-flex items-center justify-center gap-2.5 text-[#66fcf1] text-xs font-extrabold uppercase tracking-[0.2em] mb-3">
-            <span className="w-5 h-[1px] bg-[#66fcf1]" />
-            <span>{config.partnerEyebrow}</span>
-            <span className="w-5 h-[1px] bg-[#66fcf1]" />
+        {/* In-place edit button for admin */}
+        {isEditorOpen && (
+          <div className="flex justify-end mb-4">
+            <button
+              onClick={() => setActiveEditTarget('partners')}
+              className="flex items-center gap-1.5 px-3 py-1 rounded-md bg-[#66fcf1] text-[#05070b] text-xs font-bold shadow-[0_0_15px_rgba(102,252,241,0.4)] cursor-pointer"
+            >
+              <Edit3 className="w-3.5 h-3.5" />
+              <span>Edit Network</span>
+            </button>
           </div>
+        )}
+
+        {/* Unified Side-by-Side Section: Left Tagline/Content, Right Interactive Web */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 xl:gap-14 items-center">
           
-          {/* TAGLINE in Poppins Bold */}
-          <h2 className="font-poppins text-white text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-tight">
-            <span>{config.partnerTagline.replace(config.partnerTaglineHighlight, '').trim()}</span>{' '}
-            <br className="hidden sm:inline" />
-            <span className="text-[#66fcf1]">{config.partnerTaglineHighlight}</span>
-          </h2>
-
-          <p className="mt-4 text-sm sm:text-base text-[#9daab4] leading-relaxed max-w-xl mx-auto font-sans">
-            {config.partnerDescription}
-          </p>
-
-          {/* Controls Bar: Search + View Mode Switcher */}
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4 max-w-xl mx-auto">
-            {/* Search input */}
-            <div className="relative flex-1 w-full">
-              <Search className="w-4 h-4 text-white/40 absolute left-4 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Filter studios by discipline, region..."
-                className="w-full bg-[#08111a] border border-[#66fcf1]/20 rounded-full pl-11 pr-4 py-2.5 text-xs text-white placeholder-white/40 focus:outline-none focus:border-[#66fcf1] focus:ring-1 focus:ring-[#66fcf1] transition-all"
-              />
+          {/* ========================================================================= */}
+          {/* LEFT COLUMN: TAGLINE & 2-LINE DESCRIPTION ONLY                            */}
+          {/* ========================================================================= */}
+          <div className="lg:col-span-5 xl:col-span-5 flex flex-col justify-center text-left space-y-6">
+            
+            {/* Eyebrow */}
+            <div className="inline-flex items-center gap-2.5 text-[#66fcf1] text-xs font-extrabold uppercase tracking-[0.2em]">
+              <span className="w-5 h-[2px] bg-[#66fcf1]" />
+              <span>{config.partnerEyebrow}</span>
             </div>
 
-            {/* View Mode Toggle */}
-            <div className="inline-flex items-center p-1 bg-[#08111a] border border-[#66fcf1]/20 rounded-full shrink-0">
-              <button
-                onClick={() => setViewMode('infographic')}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                  viewMode === 'infographic'
-                    ? 'bg-[#66fcf1] text-[#05070b] shadow-[0_0_15px_rgba(102,252,241,0.35)]'
-                    : 'text-[#9daab4] hover:text-white'
-                }`}
-              >
-                <Network className="w-3.5 h-3.5" />
-                <span>Network Map</span>
-              </button>
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                  viewMode === 'grid'
-                    ? 'bg-[#66fcf1] text-[#05070b] shadow-[0_0_15px_rgba(102,252,241,0.35)]'
-                    : 'text-[#9daab4] hover:text-white'
-                }`}
-              >
-                <LayoutGrid className="w-3.5 h-3.5" />
-                <span>Matrix Cards</span>
-              </button>
-            </div>
+            {/* Main Section Heading: Maximum bandwidth At One Place */}
+            <h2 className="font-poppins text-white text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-black tracking-tight leading-[1.08]">
+              <span>Maximum bandwidth</span>{' '}
+              <br />
+              <span className="text-[#66fcf1]">At One Place</span>
+            </h2>
+
+            {/* 2-Line Subtitle Description */}
+            <p className="text-sm sm:text-base text-[#9daab4] leading-relaxed font-sans max-w-lg">
+              {config.partnerDescription}
+            </p>
+
           </div>
-        </div>
 
-        {/* View 1: Infographic Network View */}
-        {viewMode === 'infographic' ? (
-          <div className="animate-in fade-in duration-500">
+          {/* ========================================================================= */}
+          {/* RIGHT COLUMN: CLEAR INTERACTIVE NETWORK WEB (NO CARD / NO CONTAINER)       */}
+          {/* ========================================================================= */}
+          <div className="lg:col-span-7 xl:col-span-7 w-full animate-in fade-in duration-500">
             <InfographicNetwork
-              partners={filteredPartners.length > 0 ? filteredPartners : partners}
+              partners={partners}
               onPartnerClick={handlePartnerClick}
             />
           </div>
-        ) : (
-          /* View 2: Matrix Grid Cards */
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-in fade-in duration-500">
-            {(filteredPartners.length > 0 ? filteredPartners : partners).map((partner, index) => (
-              <div
-                key={`${partner.studioName}-${index}`}
-                onClick={() => handlePartnerClick(partner)}
-                className="group relative bg-[#08111a]/80 border border-[#66fcf1]/20 hover:border-[#66fcf1] rounded-xl p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(102,252,241,0.15)] cursor-pointer flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center justify-between gap-3 mb-4">
-                    {partner.logo ? (
-                      <div className="w-12 h-12 rounded-lg bg-black border border-white/10 p-2 flex items-center justify-center overflow-hidden">
-                        <img
-                          src={partner.logo}
-                          alt={partner.studioName}
-                          className="max-h-full max-w-full object-contain filter drop-shadow group-hover:scale-105 transition-transform"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.display = 'none';
-                            const parent = (e.target as HTMLElement).parentElement;
-                            if (parent) parent.innerHTML = '<span class="text-xs font-bold text-[#66fcf1]">RPW</span>';
-                          }}
-                        />
-                      </div>
-                    ) : (
-                      <div className="w-12 h-12 rounded-lg bg-black border border-white/10 flex items-center justify-center text-[#66fcf1]">
-                        <Building2 className="w-6 h-6" />
-                      </div>
-                    )}
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#66fcf1]/10 border border-[#66fcf1]/30 text-[10px] font-mono text-[#66fcf1] uppercase font-bold tracking-wider">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#66fcf1] animate-pulse" />
-                      NODE #{String(index + 1).padStart(2, '0')}
-                    </span>
-                  </div>
 
-                  <h3 className="font-heading text-white text-base font-bold group-hover:text-[#66fcf1] transition-colors leading-snug">
-                    {partner.studioName}
-                  </h3>
-
-                  <p className="text-xs text-[#9daab4] mt-1 line-clamp-2">
-                    {partner.speciality || 'Rotoscopy & Digital Paint Work'}
-                  </p>
-                </div>
-
-                <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-[#66fcf1]">
-                  <span>{partner.region || 'Global Hub'}</span>
-                  <span className="group-hover:translate-x-1 transition-transform inline-flex items-center gap-1 font-bold">
-                    CONNECT &rarr;
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        </div>
       </div>
     </section>
   );

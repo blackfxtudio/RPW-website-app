@@ -14,6 +14,9 @@ export const RotoLogo: React.FC<RotoLogoProps> = ({
 }) => {
   const [imgError, setImgError] = useState(false);
 
+  const DEFAULT_LOGO = 'https://static.wixstatic.com/media/7ffb5e_bebd8db90704414a9140cfbf0e8fe1e1~mv2.png/v1/fill/w_400,h_400,al_c,q_90,enc_avif,quality_auto/RPW.png';
+  const effectiveSrc = (src && src.trim() !== '') ? src : DEFAULT_LOGO;
+
   const sizeClasses = {
     sm: 'w-8 h-8',
     md: 'w-12 h-12',
@@ -110,7 +113,7 @@ export const RotoLogo: React.FC<RotoLogoProps> = ({
   return (
     <div className={`relative flex items-center justify-center ${className}`}>
       <img
-        src={src}
+        src={effectiveSrc}
         alt="Roto Paint Wala Official Logo"
         className={`${sizeClasses} object-contain select-none transition-transform duration-300 hover:scale-105`}
         onError={() => setImgError(true)}

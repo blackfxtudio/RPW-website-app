@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { X, Play, Sliders, Layers, CheckCircle2, Zap, ExternalLink, Film, Clock, Sparkles } from 'lucide-react';
+import React from 'react';
+import { X, Film, Zap } from 'lucide-react';
 import { PortfolioShowreelItem } from '../../types';
+import { getYouTubeEmbedUrl, extractYouTubeId, isDirectVideoUrl } from '../../utils/mediaUtils';
 
 interface ReelCinemaModalProps {
   reel: PortfolioShowreelItem | null;
@@ -9,32 +10,11 @@ interface ReelCinemaModalProps {
 }
 
 export const ReelCinemaModal: React.FC<ReelCinemaModalProps> = ({ reel, onClose, onOpenTestShotModal }) => {
-  const [activeTab, setActiveTab] = useState<'video' | 'wipe' | 'specs'>('video');
-  const [sliderPos, setSliderPos] = useState<number>(50);
-
   if (!reel) return null;
 
-  // Extract YouTube ID if valid
-  const getYouTubeEmbedUrl = (url: string) => {
-    let videoId = '';
-    if (url.includes('v=')) {
-      videoId = url.split('v=')[1]?.split('&')[0];
-    } else if (url.includes('youtu.be/')) {
-      videoId = url.split('youtu.be/')[1]?.split('?')[0];
-    }
-    return videoId
-      ? `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`
-      : null;
-  };
-
-  const embedUrl = getYouTubeEmbedUrl(reel.videoUrl);
-
-  const handleSliderMove = (e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
-    setSliderPos(Math.round((x / rect.width) * 100));
-  };
+  const hasVideo = !!(reel.videoUrl && (extractYouTubeId(reel.videoUrl) || isDirectVideoUrl(reel.videoUrl)));
+  const embedUrl = hasVideo ? getYouTubeEmbedUrl(reel.videoUrl, { autoplay: true, mute: false, loop: true, controls: true }) : null;
+  const isDirect = isDirectVideoUrl(reel.videoUrl);
 
   return (
     <div className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-2xl flex items-center justify-center p-2 sm:p-6 animate-in fade-in duration-300">
@@ -53,38 +33,16 @@ export const ReelCinemaModal: React.FC<ReelCinemaModalProps> = ({ reel, onClose,
             </h3>
           </div>
 
-          <div className="flex items-center gap-2">
-            {/* View Mode Tabs */}
-            <div className="hidden sm:flex items-center bg-[#05070b] border border-white/15 rounded-xl p-1">
-              <button
-                onClick={() => setActiveTab('video')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 transition-all ${
-                  activeTab === 'video'
-                    ? 'bg-[#66fcf1] text-[#05070b]'
-                    : 'text-[#9daab4] hover:text-white'
-                }`}
-              >
-                <Film className="w-3.5 h-3.5" />
-                <span>Showreel</span>
-              </button>
-              {reel.beforeImage && (
-                <button
-                  onClick={() => setActiveTab('wipe')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 transition-all ${
-                    activeTab === 'wipe'
-                      ? 'bg-[#66fcf1] text-[#05070b]'
-                      : 'text-[#9daab4] hover:text-white'
-                  }`}
-                >
-                  <Sliders className="w-3.5 h-3.5" />
-                  <span>A/B Wipe</span>
-                </button>
-              )}
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#05070b] border border-white/10 text-xs font-mono text-[#66fcf1]">
+              <Film className="w-3.5 h-3.5" />
+              <span>Cinema Master</span>
             </div>
 
             <button
               onClick={onClose}
               className="p-2.5 rounded-full bg-white/10 hover:bg-rose-500/20 text-white hover:text-rose-400 border border-white/15 transition-all"
+              aria-label="Close"
             >
               <X className="w-5 h-5" />
             </button>
@@ -95,66 +53,30 @@ export const ReelCinemaModal: React.FC<ReelCinemaModalProps> = ({ reel, onClose,
         <div className="overflow-y-auto flex-1 p-4 sm:p-6 space-y-6">
           {/* Main Visual Screen */}
           <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black border border-white/10 shadow-2xl">
-            {activeTab === 'video' ? (
-              embedUrl ? (
-                <iframe
-                  src={embedUrl}
-                  title={reel.title}
-                  className="w-full h-full border-0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              ) : (
-                <img
-                  src={reel.thumbnail}
-                  alt={reel.title}
-                  className="w-full h-full object-cover"
-                />
-              )
+            {isDirect ? (
+              <video
+                src={reel.videoUrl || undefined}
+                autoPlay
+                controls
+                loop
+                playsInline
+                className="w-full h-full object-contain bg-black"
+              />
+            ) : embedUrl ? (
+              <iframe
+                src={embedUrl}
+                title={reel.title}
+                referrerPolicy="strict-origin-when-cross-origin"
+                className="w-full h-full border-0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
             ) : (
-              /* A/B Wipe Mode */
-              <div
-                className="relative w-full h-full cursor-ew-resize select-none overflow-hidden"
-                onMouseMove={handleSliderMove}
-                onTouchMove={handleSliderMove}
-              >
-                {/* Before Image */}
-                <img
-                  src={reel.beforeImage || reel.thumbnail}
-                  alt="Original Plate"
-                  className="absolute inset-0 w-full h-full object-cover select-none"
-                />
-                {/* After Image Clipped */}
-                <div
-                  className="absolute inset-0 overflow-hidden pointer-events-none select-none"
-                  style={{
-                    clipPath: `polygon(0 0, ${sliderPos}% 0, ${sliderPos}% 100%, 0 100%)`,
-                  }}
-                >
-                  <img
-                    src={reel.afterImage || reel.matteImage || reel.thumbnail}
-                    alt="Processed Plate"
-                    className="absolute inset-0 w-full h-full object-cover select-none filter contrast-125"
-                  />
-                  <div className="absolute inset-0 bg-[#66fcf1]/20 mix-blend-color-dodge" />
-                </div>
-                {/* Divider */}
-                <div
-                  className="absolute top-0 bottom-0 w-[2px] bg-[#66fcf1] shadow-[0_0_15px_#66fcf1]"
-                  style={{ left: `${sliderPos}%` }}
-                >
-                  <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-[#66fcf1] text-[#05070b] flex items-center justify-center font-bold text-xs shadow-lg">
-                    ↔
-                  </div>
-                </div>
-                {/* Labels */}
-                <div className="absolute bottom-4 left-4 px-3 py-1 rounded bg-black/80 text-[11px] font-mono text-[#66fcf1] border border-[#66fcf1]/40">
-                  MATTE / CLEAN [{sliderPos}%]
-                </div>
-                <div className="absolute bottom-4 right-4 px-3 py-1 rounded bg-black/80 text-[11px] font-mono text-white/80 border border-white/20">
-                  RAW PLATE
-                </div>
-              </div>
+              <img
+                src={reel.beforeImage || reel.afterImage || reel.thumbnail || undefined}
+                alt={reel.title}
+                className="w-full h-full object-cover"
+              />
             )}
           </div>
 

@@ -42,18 +42,23 @@ export const InfographicNetwork: React.FC<InfographicNetworkProps> = ({
   const [dimensions, setDimensions] = useState({ width: 1100, height: 720 });
   const [hoveredNodeId, setHoveredNodeId] = useState<number | null>(null);
 
-  // 8 Verified partner studios
-  const displayPartners = useMemo(() => partners.slice(0, 8), [partners]);
+  // All Verified partner studios dynamically
+  const displayPartners = useMemo(() => (partners && partners.length > 0 ? partners : []), [partners]);
 
-  // Update container dimensions on window resize
+  // Update container dimensions on window resize & partner count
   useEffect(() => {
     const updateSize = () => {
       if (containerRef.current) {
         const rect = containerRef.current.getBoundingClientRect();
         const w = Math.max(rect.width, 320);
-        // Adaptive height for responsive screens
-        const h = window.innerWidth < 768 ? 760 : Math.max(rect.width * 0.6, 680);
-        setDimensions({ width: w, height: h });
+        const maxNodesOnSide = Math.max(1, Math.ceil(displayPartners.length / 2));
+        
+        // Adaptive height for responsive screens and dynamic studio counts in side-by-side or full view
+        const baseH = maxNodesOnSide <= 4 
+          ? (window.innerWidth < 640 ? 660 : Math.max(560, Math.min(rect.width * 0.82, 640)))
+          : Math.max(600, maxNodesOnSide * (window.innerWidth < 640 ? 125 : 95));
+
+        setDimensions({ width: w, height: baseH });
       }
     };
 
@@ -65,27 +70,43 @@ export const InfographicNetwork: React.FC<InfographicNetworkProps> = ({
       observer.disconnect();
       window.removeEventListener('resize', updateSize);
     };
-  }, []);
+  }, [displayPartners.length]);
 
   // Node Positions (Percentage based, perfectly matching screenshot layout)
-  // Left 4 nodes & Right 4 nodes
+  // Dynamic Left & Right distribution for any number of studios (2, 4, 8, 10, 12, 16+)
   const nodes: NodeData[] = useMemo(() => {
     const isMobile = dimensions.width < 640;
-    
-    // Left column: Node #01 to #04
-    // Right column: Node #05 to #08
-    return displayPartners.map((partner, idx) => {
-      const isLeft = idx < 4;
-      const indexOnSide = isLeft ? idx : idx - 4;
-      
-      // Vertical distribution: 14%, 38%, 62%, 86%
-      const yPercentages = [14, 38, 62, 86];
-      const posY = yPercentages[indexOnSide] ?? 50;
+    const total = displayPartners.length;
+    if (total === 0) return [];
 
-      // Horizontal placement with adequate margin from large center hub
+    const leftCount = Math.ceil(total / 2);
+    const rightCount = total - leftCount;
+
+    return displayPartners.map((partner, idx) => {
+      const isLeft = idx < leftCount;
+      const indexOnSide = isLeft ? idx : idx - leftCount;
+      const countOnSide = isLeft ? leftCount : rightCount;
+
+      let posY = 50;
+      if (countOnSide === 1) {
+        posY = 50;
+      } else if (countOnSide === 2) {
+        posY = indexOnSide === 0 ? 28 : 72;
+      } else if (countOnSide === 3) {
+        posY = indexOnSide === 0 ? 18 : indexOnSide === 1 ? 50 : 82;
+      } else if (countOnSide === 4) {
+        // Standard 4-node layout: 12%, 37%, 63%, 88%
+        const yPercentages = [12, 37, 63, 88];
+        posY = yPercentages[indexOnSide] ?? 50;
+      } else {
+        // Dynamic even distribution from 10% to 90%
+        posY = 10 + (indexOnSide / (countOnSide - 1)) * 80;
+      }
+
+      // Horizontal placement with adequate margin from center hub
       const posX = isLeft 
-        ? (isMobile ? 18 : 15) 
-        : (isMobile ? 82 : 85);
+        ? (isMobile ? 14 : 14) 
+        : (isMobile ? 86 : 86);
 
       return {
         id: idx,
@@ -109,15 +130,17 @@ export const InfographicNetwork: React.FC<InfographicNetworkProps> = ({
     const cx = centerPos.x;
     const cy = centerPos.y;
     const isMobile = dimensions.width < 640;
-    // Hub radius matched to the enlarged central circle (diameter ~260-280px on desktop)
-    const hubRadius = isMobile ? 96 : 132;
+    const isTablet = dimensions.width >= 640 && dimensions.width < 1024;
+    
+    // Hub radius matched to the reduced central circle (w-32=128px on mobile -> r=64, w-48=192px on sm/md -> r=96, w-60=240px on lg -> r=120)
+    const hubRadius = isMobile ? 64 : isTablet ? 96 : 120;
 
     return nodes.map((node) => {
       const nx = (node.posX / 100) * dimensions.width;
       const ny = (node.posY / 100) * dimensions.height;
 
-      // Connection point at the edge of the circular node
-      const nodeRadius = isMobile ? 40 : 48;
+      // Connection point at the edge of the circular node (w-16=64px on mobile -> r=32, w-20=80px on sm/md -> r=40, w-24=96px on lg -> r=48)
+      const nodeRadius = isMobile ? 32 : isTablet ? 40 : 48;
       const targetPinX = node.side === 'left' ? nx + nodeRadius : nx - nodeRadius;
       const targetPinY = ny;
 
@@ -295,7 +318,7 @@ export const InfographicNetwork: React.FC<InfographicNetworkProps> = ({
       </svg>
 
       {/* ========================================================================= */}
-      {/* CENTRAL BRAND HUB: ENLARGED CIRCLE & BIG LOGO (NO "CENTRAL HUB" TEXT)     */}
+      {/* CENTRAL BRAND HUB: PROPERLY PROPORTIONED CENTRAL CIRCLE & LOGO            */}
       {/* ========================================================================= */}
       <div
         className="absolute z-20 -translate-x-1/2 -translate-y-1/2 pointer-events-auto"
@@ -304,18 +327,18 @@ export const InfographicNetwork: React.FC<InfographicNetworkProps> = ({
           top: `${centerPos.y}px`,
         }}
       >
-        {/* Enlarged Central Circle Container (Diameter: ~200px on mobile, ~270px on desktop) */}
-        <div className="relative w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 lg:w-72 lg:h-72 flex items-center justify-center">
+        {/* Central Circle Container (Diameter: 128px on mobile, 180px on tablet, 240px on desktop) */}
+        <div className="relative w-32 h-32 sm:w-44 sm:h-44 md:w-48 md:h-48 lg:w-60 lg:h-60 flex items-center justify-center">
           {/* Subtle Ambient Backglow strictly hugging the hub */}
-          <div className="absolute inset-0 rounded-full bg-[#66fcf1]/20 blur-2xl pointer-events-none animate-pulse" />
+          <div className="absolute inset-0 rounded-full bg-[#66fcf1]/20 blur-xl pointer-events-none animate-pulse" />
 
           {/* Central Hub Circle with Pure Black Backdrop & Cyan Border */}
-          <div className="relative w-full h-full rounded-full bg-[#000000] border-2 border-[#66fcf1] p-4 sm:p-6 md:p-8 flex items-center justify-center text-center shadow-[0_0_40px_rgba(102,252,241,0.5)] group cursor-default overflow-hidden">
+          <div className="relative w-full h-full rounded-full bg-[#000000] border-2 border-[#66fcf1] p-2.5 sm:p-4 md:p-5 lg:p-6 flex items-center justify-center text-center shadow-[0_0_30px_rgba(102,252,241,0.45)] group cursor-default overflow-hidden">
             {/* Pure black background disc */}
             <div className="absolute inset-0 rounded-full bg-[#000000]" />
 
             {/* Specular Curved Top Glass Sheen */}
-            <div className="absolute top-0 left-4 right-4 h-1/2 rounded-t-full bg-gradient-to-b from-white/20 via-white/5 to-transparent pointer-events-none opacity-60" />
+            <div className="absolute top-0 left-2 right-2 h-1/2 rounded-t-full bg-gradient-to-b from-white/20 via-white/5 to-transparent pointer-events-none opacity-60" />
 
             {/* BIG Roto Paint Wala Logo prominently centered */}
             <div className="relative z-10 w-full h-full flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
@@ -326,9 +349,7 @@ export const InfographicNetwork: React.FC<InfographicNetworkProps> = ({
       </div>
 
       {/* ========================================================================= */}
-      {/* 8 PARTNER NODES: WHOLE CIRCULAR CONTAINER ZOOMS TO MATCH 20% < CENTRAL HUB */}
-      {/* Central hub is ~270px; 20% less is ~216px. Normal node is ~96px.           */}
-      {/* Scaling by ~2.2x transforms the circular container from 96px -> ~212px     */}
+      {/* PARTNER NODES: CLEANLY ALIGNED SATELLITE HUBS (ZERO OVERLAP)             */}
       {/* ========================================================================= */}
       {nodes.map((node) => {
         const isHovered = hoveredNodeId === node.id;
@@ -352,7 +373,7 @@ export const InfographicNetwork: React.FC<InfographicNetworkProps> = ({
           >
             {/* Outer Cyan Glow on Hover */}
             <div
-              className={`absolute -inset-5 rounded-full transition-all duration-300 pointer-events-none ${
+              className={`absolute -inset-4 rounded-full transition-all duration-300 pointer-events-none ${
                 isHovered
                   ? 'bg-[#66fcf1]/35 blur-xl scale-125 opacity-100'
                   : 'bg-[#66fcf1]/5 blur-md opacity-25 group-hover:opacity-75'
@@ -361,20 +382,20 @@ export const InfographicNetwork: React.FC<InfographicNetworkProps> = ({
 
             {/* Node ID Badge Pill (e.g. NODE #01) */}
             <div 
-              className={`absolute -top-6 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full text-[9px] font-mono font-extrabold tracking-wider uppercase border transition-all duration-300 shadow-lg whitespace-nowrap z-30 ${
+              className={`absolute -top-5 sm:-top-6 left-1/2 -translate-x-1/2 px-2 sm:px-2.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-mono font-extrabold tracking-wider uppercase border transition-all duration-300 shadow-lg whitespace-nowrap z-30 ${
                 isHovered
-                  ? 'bg-[#66fcf1] text-[#04080e] border-[#66fcf1] shadow-[0_0_12px_rgba(102,252,241,0.6)] -translate-y-2'
+                  ? 'bg-[#66fcf1] text-[#04080e] border-[#66fcf1] shadow-[0_0_12px_rgba(102,252,241,0.6)] -translate-y-1.5'
                   : 'bg-[#060e18]/90 text-[#66fcf1] border-[#66fcf1]/30 group-hover:border-[#66fcf1]'
               }`}
             >
               NODE #{String(node.id + 1).padStart(2, '0')}
             </div>
 
-            {/* THE ENTIRE CIRCULAR CONTAINER WITH PURE BLACK BACKDROP & LOGO ZOOMS ON HOVER */}
+            {/* THE ENTIRE CIRCULAR CONTAINER WITH PURE BLACK BACKDROP & LOGO */}
             <div
-              className={`relative w-20 h-20 sm:w-24 sm:h-24 md:w-24 md:h-24 rounded-full flex items-center justify-center p-2.5 sm:p-3 border-2 transition-all duration-300 ease-out overflow-hidden shadow-2xl origin-center ${
+              className={`relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center p-2 sm:p-2.5 md:p-3 border-2 transition-all duration-300 ease-out overflow-hidden shadow-2xl origin-center ${
                 isHovered
-                  ? 'scale-[2.20] border-[#66fcf1] bg-black shadow-[0_0_40px_rgba(102,252,241,0.65)] ring-2 ring-[#66fcf1]/50'
+                  ? 'scale-[1.5] sm:scale-[1.8] md:scale-[2.0] border-[#66fcf1] bg-black shadow-[0_0_35px_rgba(102,252,241,0.65)] ring-2 ring-[#66fcf1]/50'
                   : 'scale-100 border-[#66fcf1]/35 bg-black hover:border-[#66fcf1]/80 shadow-[0_0_20px_rgba(0,0,0,0.8)]'
               }`}
             >
@@ -457,7 +478,7 @@ export const InfographicNetwork: React.FC<InfographicNetworkProps> = ({
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-[#66fcf1] animate-pulse" />
           <span className="text-white/80 font-bold">UNIFIED PIPELINE STANDARD</span>
-          <span className="hidden sm:inline text-white/40">• 8 Verified Production Nodes Synchronized</span>
+          <span className="hidden sm:inline text-white/40">• {displayPartners.length} Verified Production Nodes Synchronized</span>
         </div>
         <div className="flex items-center gap-2 sm:gap-3">
           <span className="text-[#66fcf1] font-bold">~12H SLA</span>

@@ -1,0 +1,1158 @@
+{
+  "brandName": "ROTO PAINT",
+  "brandHighlight": "WALA",
+  "logoUrl": "https://static.wixstatic.com/media/7ffb5e_bebd8db90704414a9140cfbf0e8fe1e1~mv2.png/v1/fill/w_400,h_400,al_c,q_90,enc_avif,quality_auto/RPW.png",
+  "headerLiveBadgeText": "LIVE",
+  "primaryTagline": "Maximum bandwidth At One Place",
+  "primaryTaglineHighlight": "At One Place",
+  "primaryFont": "Poppins",
+  "accentColor": "#66fcf1",
+  "supportEmail": "tom@blackfx.net",
+  "connectPortalUrl": "https://app.rotopaintwala.com/",
+  "whatsappNumber": "9372823352",
+  "whatsappUrl": "https://wa.me/919372823352?text=Hello%20Roto%20Paint%20Wala%20Team%2C%20I%20would%20like%20to%20discuss%20a%20VFX%20Project",
+  "heroEyebrow": "Rotoscopy · Paint · VFX Support",
+  "heroHeadlineLine1": "MAKE THE",
+  "heroHeadlineGradient": "IMPOSSIBLE",
+  "heroHeadlineLine3": "INVISIBLE.",
+  "heroDescription": "ROTO PAINT WALA is a production-focused roto and paint network built to give filmmakers, agencies and VFX studios the bandwidth to move faster — without losing control over quality.",
+  "heroBgVideoType": "youtube",
+  "heroBgSourceType": "single-video",
+  "heroBgVideoYouTubeId": "oimtknXFil4",
+  "heroBgPlaylistId": "PLeCvIRVv6kwAnlAl3GSafX4qZ8I_5pTEu",
+  "heroBgPlaylistShuffle": true,
+  "heroBgLoop": true,
+  "heroBgVideoMp4Url": "",
+  "heroBgImageFallback": "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=1920&q=80",
+  "heroCtaPrimaryText": "EXPLORE THE WORK",
+  "heroCtaSecondaryText": "ENTER RPW CONNECT",
+  "heroCtaTertiaryText": "Need Quick Turnaround?",
+  "partnerEyebrow": "RPW COLLECTIVE",
+  "partnerTagline": "Maximum bandwidth At One Place",
+  "partnerTaglineHighlight": "At One Place",
+  "partnerDescription": "A growing network of specialised partner studios working under one unified production standard. Zero vendor sprawl. Full accountability.",
+  "partners": [
+    {
+      "studioName": "Leoceo VFX",
+      "email": "tom@blackfx.net",
+      "website": "https://leoceovfx.com",
+      "logo": "/uploads/img_partners_0_logo_1788364494155.png",
+      "region": "Global Network",
+      "speciality": "VFX Support & Rotoscopy",
+      "artistCount": 30,
+      "status": "ACTIVE"
+    },
+    {
+      "studioName": "Cinerva VFX Private Limited",
+      "email": "tom@blackfx.net",
+      "website": "https://cinervavfx.com",
+      "logo": "/uploads/img_partners_1_logo_1788364494169.webp",
+      "region": "Global Network",
+      "speciality": "VFX Support & Rotoscopy",
+      "artistCount": 45,
+      "status": "ACTIVE"
+    },
+    {
+      "studioName": "Vision Peak VFX",
+      "email": "tom@blackfx.net",
+      "website": "https://visionpeakvfx.com",
+      "logo": "https://static.wixstatic.com/media/7ffb5e_7bc187b5a1bb402796dc951e8da61bc0~mv2.png/v1/fill/w_200,h_120,al_c,q_85,enc_avif,quality_auto/visionpeak.png",
+      "region": "Global Network",
+      "speciality": "VFX Support & Rotoscopy",
+      "artistCount": 25,
+      "status": "ACTIVE"
+    },
+    {
+      "studioName": "AccuRoto",
+      "email": "tom@blackfx.net",
+      "website": "https://accuroto.com",
+      "logo": "https://static.wixstatic.com/media/7ffb5e_e6fa89c09c914bf199eb3c1a700eb8aa~mv2.png/v1/fill/w_200,h_100,al_c,q_85,enc_avif,quality_auto/accuroto.png",
+      "region": "Global Network",
+      "speciality": "High-Density Roto & Prep",
+      "artistCount": 35,
+      "status": "ACTIVE"
+    },
+    {
+      "studioName": "Symbol VFX Studios",
+      "email": "tom@blackfx.net",
+      "website": "https://symbolvfx.com",
+      "logo": "https://static.wixstatic.com/media/7ffb5e_d23a41b52bc2467d93ffcf29759ad766~mv2.png/v1/fill/w_200,h_120,al_c,q_85,enc_avif,quality_auto/symbol.png",
+      "region": "Global Network",
+      "speciality": "VFX Support & Rotoscopy",
+      "artistCount": 28,
+      "status": "ACTIVE"
+    },
+    {
+      "studioName": "Reelax Studios",
+      "email": "tom@blackfx.net",
+      "website": "https://reelaxstudios.com",
+      "logo": "https://static.wixstatic.com/media/7ffb5e_c3a060416b254a61905ea8bb1d8a14d5~mv2.png/v1/fill/w_200,h_100,al_c,q_85,enc_avif,quality_auto/reelax.png",
+      "region": "Global Network",
+      "speciality": "VFX Support & Rotoscopy",
+      "artistCount": 20,
+      "status": "ACTIVE"
+    },
+    {
+      "studioName": "Zedone Animation and Vfx Studios LLP",
+      "email": "tom@blackfx.net",
+      "website": "https://zedonestudios.com",
+      "logo": "https://static.wixstatic.com/media/7ffb5e_7fa99c1543884e9089f21f1da83eb1be~mv2.png/v1/fill/w_180,h_180,al_c,q_85,enc_avif,quality_auto/zedone.png",
+      "region": "Global Network",
+      "speciality": "VFX Support & Rotoscopy",
+      "artistCount": 40,
+      "status": "ACTIVE"
+    }
+  ],
+  "workEyebrow": "THE WORK",
+  "workHeading": "Frames in",
+  "workHeadingHighlight": "motion.",
+  "workDescription": "Production-focused roto, paint and VFX support showcasing precision work built for high-end studio pipelines. Drag over any shot to inspect edge sharpness and clean plate integrity.",
+  "shots": [
+    {
+      "id": "shot-01",
+      "title": "Precision Character & Hair Rotoscopy",
+      "category": "Roto",
+      "tag": "01 / FEATURED",
+      "description": "Multi-layer isolated silhouette, motion-blurred fine hair detail, and complex interactive edge preservation for feature film composite.",
+      "originalImage": "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=1200&q=80",
+      "processedImage": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80",
+      "clientType": "Sci-Fi Feature Film",
+      "resolution": "4K DCI (4096x2160)",
+      "frameRange": "184 Frames @ 24fps",
+      "complexity": "Master"
+    },
+    {
+      "id": "shot-02",
+      "title": "Stunt Rig & Wire Deconstruction",
+      "category": "Digital Paint",
+      "tag": "02 / CLEANUP",
+      "description": "Sub-pixel background reconstruction behind high-velocity acrobatic harness wire rigs without grain jitter or spatial distortion.",
+      "originalImage": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80",
+      "processedImage": "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=800&q=80",
+      "clientType": "Commercial Campaign",
+      "resolution": "4K UHD (3840x2160)",
+      "frameRange": "96 Frames @ 60fps",
+      "complexity": "High"
+    },
+    {
+      "id": "shot-03",
+      "title": "Clean Plate & Dynamic Shadow Re-creation",
+      "category": "Cleanup",
+      "tag": "03 / VFX PIPELINE",
+      "description": "Removal of boom mics, tracking markers, and production crew reflections with matched natural optical aberrations and film grain.",
+      "originalImage": "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=800&q=80",
+      "processedImage": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=800&q=80",
+      "clientType": "High-End Streaming Series",
+      "resolution": "4K ProRes 4444 XQ",
+      "frameRange": "240 Frames @ 24fps",
+      "complexity": "High"
+    }
+  ],
+  "servicesEyebrow": "WHAT WE DO",
+  "servicesHeading": "The invisible",
+  "servicesHeadingHighlight": "craft.",
+  "servicesDescription": "Precision work built for the shots that cannot afford mistakes. Click any discipline to explore deliverable formats and software tooling.",
+  "services": [
+    {
+      "number": "01",
+      "title": "Rotoscopy",
+      "description": "Character, object, hair, motion and complex interaction mattes.",
+      "deliverables": [
+        "Isolated Matte Channels (.EXR RGB/Alpha)",
+        "Nuke Roto Nodes (.nk script)",
+        "Silhouette & Core Layer Partitioning"
+      ],
+      "tools": [
+        "Silhouette FX",
+        "Foundry Nuke",
+        "Mocha Pro"
+      ]
+    },
+    {
+      "number": "02",
+      "title": "Digital Paint",
+      "description": "Wire removal, rig removal, clean plates, beauty work and frame restoration.",
+      "deliverables": [
+        "Frame-by-Frame Clean Plates",
+        "Temporal Grain Matched Sequences",
+        "Dynamic Texture Projection Patches"
+      ],
+      "tools": [
+        "Foundry Nuke",
+        "Adobe Photoshop",
+        "Mari / 3D Projection"
+      ]
+    },
+    {
+      "number": "03",
+      "title": "Cleanup",
+      "description": "High-detail cleanup for film, advertising and VFX production.",
+      "deliverables": [
+        "Marker Removal Passes",
+        "Anamorphic Flare Preservation",
+        "Seamless Seam & Boundary Blends"
+      ],
+      "tools": [
+        "Foundry Nuke",
+        "Silhouette FX",
+        "Flame"
+      ]
+    },
+    {
+      "number": "04",
+      "title": "Keying",
+      "description": "Green-screen and extraction support for production pipelines.",
+      "deliverables": [
+        "Edge Treatment & Despill Passes",
+        "Additive Hair Detail Recovery",
+        "Core & Edge Composite Splits"
+      ],
+      "tools": [
+        "Primatte",
+        "Keylight",
+        "IBK Colour & Gizmos"
+      ]
+    },
+    {
+      "number": "05",
+      "title": "Matchmove",
+      "description": "Tracking and matchmove support for downstream VFX work.",
+      "deliverables": [
+        "3D Camera Solver (.FBX / .Alembic)",
+        "Survey Point Cloud & Distortion Grid",
+        "Geometry Object Tracking"
+      ],
+      "tools": [
+        "3DEqualizer",
+        "PFTrack",
+        "Syntheyes"
+      ]
+    },
+    {
+      "number": "06",
+      "title": "VFX Support",
+      "description": "Production-ready support integrated into your existing VFX pipeline.",
+      "deliverables": [
+        "Shotgun / Ftrack Status Sync",
+        "Custom Pipeline Hand-off",
+        "Round-the-clock 12H Shift Rotations"
+      ],
+      "tools": [
+        "ShotGrid API",
+        "Aspera / Signiant",
+        "Custom Python Dispatch"
+      ]
+    }
+  ],
+  "whyEyebrow": "WHY RPW",
+  "whyHeading": "Built for",
+  "whyHeadingHighlight": "production pressure.",
+  "whyPillars": [
+    {
+      "number": "01 / BANDWIDTH",
+      "title": "Scale when you need it.",
+      "description": "Access a wider verified artist network when the deadline gets tighter and the shot count spikes from 10 to 100+ frames.",
+      "iconName": "Users"
+    },
+    {
+      "number": "02 / CONTROL",
+      "title": "One accountable partner.",
+      "description": "You work directly with RPW supervision while we orchestrate artists, partner studios, dual-pass quality checks and delivery.",
+      "iconName": "Compass"
+    },
+    {
+      "number": "03 / SECURITY",
+      "title": "NDA-first workflow.",
+      "description": "Project confidentiality, watermarked plate routing, and air-gapped production handling are built into every pipeline step.",
+      "iconName": "Lock"
+    },
+    {
+      "number": "04 / SPEED",
+      "title": "Production cycles built around deadlines.",
+      "description": "Our distributed 12-hour shift structure delivers clean passes while your local composite team sleeps, unlocking round-the-clock momentum.",
+      "iconName": "Zap"
+    }
+  ],
+  "liveShots": [
+    {
+      "id": "1",
+      "shotCode": "SHOT_00128",
+      "service": "ROTO",
+      "status": "DONE",
+      "frames": 144,
+      "artistLead": "Lead A-09",
+      "progress": 100
+    },
+    {
+      "id": "2",
+      "shotCode": "SHOT_00129",
+      "service": "PAINT",
+      "status": "WIP",
+      "frames": 96,
+      "artistLead": "Lead P-03",
+      "progress": 68
+    },
+    {
+      "id": "3",
+      "shotCode": "SHOT_00130",
+      "service": "CLEANUP",
+      "status": "QC",
+      "frames": 210,
+      "artistLead": "Lead C-12",
+      "progress": 90
+    },
+    {
+      "id": "4",
+      "shotCode": "SHOT_00131",
+      "service": "ROTO",
+      "status": "WIP",
+      "frames": 75,
+      "artistLead": "Lead A-04",
+      "progress": 42
+    },
+    {
+      "id": "5",
+      "shotCode": "SHOT_00132",
+      "service": "PAINT",
+      "status": "DONE",
+      "frames": 180,
+      "artistLead": "Lead P-07",
+      "progress": 100
+    },
+    {
+      "id": "6",
+      "shotCode": "SHOT_00133",
+      "service": "KEYING",
+      "status": "INGEST",
+      "frames": 320,
+      "artistLead": "Lead K-01",
+      "progress": 15
+    },
+    {
+      "id": "7",
+      "shotCode": "SHOT_00134",
+      "service": "TRACK",
+      "status": "DELIVERED",
+      "frames": 110,
+      "artistLead": "Lead M-02",
+      "progress": 100
+    }
+  ],
+  "stats": [
+    {
+      "value": "100+",
+      "label": "Artists / Network"
+    },
+    {
+      "value": "07",
+      "label": "Partner Studios"
+    },
+    {
+      "value": "12H",
+      "label": "Production Cycle"
+    },
+    {
+      "value": "01",
+      "label": "Unified Workflow"
+    }
+  ],
+  "tickerItems": [
+    "KEYING",
+    "VFX SUPPORT",
+    "ROTOSCOPY",
+    "DIGITAL PAINT",
+    "CLEANUP",
+    "MATCHMOVE",
+    "WIRE REMOVAL",
+    "HAIR MATTES"
+  ],
+  "faqEyebrow": "QUESTIONS",
+  "faqHeading": "Things people",
+  "faqHeadingHighlight": "ask us.",
+  "faqs": [
+    {
+      "question": "What type of roto and paint work do you handle?",
+      "answer": "RPW handles character and object rotoscopy, hair mattes, complex interactions, digital paint, wire and rig removal, cleanup, keying and related VFX preparation work.",
+      "category": "Capabilities"
+    },
+    {
+      "question": "Can you work under NDA?",
+      "answer": "Yes. Confidentiality and controlled project handling are part of the RPW production workflow. We execute bilateral Non-Disclosure Agreements with every client and have isolated, secure pipeline infrastructure.",
+      "category": "Security"
+    },
+    {
+      "question": "Can RPW handle large-volume projects?",
+      "answer": "That's one of the primary reasons the network exists. RPW can allocate work across its internal production team and verified partner network according to project requirements and deadlines, scaling to hundreds of shots concurrently.",
+      "category": "Scale"
+    },
+    {
+      "question": "How do we send you a project?",
+      "answer": "Start through RPW Connect or contact the RPW team with your brief, shot count, requirements and deadline. We can immediately determine the appropriate production setup and provide turnaround estimates.",
+      "category": "Workflow"
+    },
+    {
+      "question": "Can we start with a test shot?",
+      "answer": "Yes! Test-shot workflows can be scheduled based on the project scope, technical requirements, and production timeline. We frequently run sample frames to calibrate matte softness, edge tolerances, and clean plate specs.",
+      "category": "Trial"
+    }
+  ],
+  "finalCtaEyebrow": "READY WHEN YOU ARE",
+  "finalCtaHeadline": "GOT",
+  "finalCtaHeadlineHighlight": "FRAMES?",
+  "finalCtaDescription": "Bring us the difficult shots. We'll bring the artists, technical QC, and production bandwidth to make them work.",
+  "finalCtaPrimaryText": "START WITH RPW CONNECT",
+  "finalCtaSecondaryText": "SUBMIT TEST SHOT BRIEF",
+  "footerCopyright": "© 2026 ROTO PAINT WALA. A Division of Black Fxtudio.",
+  "footerTagline": "Production-ready Roto, Paint & VFX Support Network.",
+  "socialLinks": [
+    {
+      "id": "facebook",
+      "platform": "facebook",
+      "label": "Facebook",
+      "url": "https://www.facebook.com/rotopaintwala",
+      "enabled": true
+    },
+    {
+      "id": "instagram",
+      "platform": "instagram",
+      "label": "Instagram",
+      "url": "https://www.instagram.com/rotopaintwala",
+      "enabled": true
+    },
+    {
+      "id": "youtube",
+      "platform": "youtube",
+      "label": "YouTube",
+      "url": "https://www.youtube.com/@rotopaintwala",
+      "enabled": true
+    },
+    {
+      "id": "linkedin",
+      "platform": "linkedin",
+      "label": "LinkedIn",
+      "url": "https://www.linkedin.com/company/roto-paint-wala",
+      "enabled": true
+    },
+    {
+      "id": "whatsapp",
+      "platform": "whatsapp",
+      "label": "WhatsApp Direct Dispatch",
+      "url": "https://wa.me/919372823352?text=Hello%20Roto%20Paint%20Wala%20Team%2C%20I%20would%20like%20to%20discuss%20a%20VFX%20Project",
+      "enabled": true
+    },
+    {
+      "id": "google",
+      "platform": "google",
+      "label": "Google Search / Business",
+      "url": "https://www.google.com/search?q=Roto+Paint+Wala",
+      "enabled": true
+    }
+  ],
+  "portfolioReels": [
+    {
+      "id": "reel-01",
+      "title": "KALKI",
+      "category": "Roto",
+      "tag": "HAIR & MOTION BLUR ROTO",
+      "thumbnail": "https://www.bizasialive.com/wp-content/uploads/2024/06/Amitabh-Bachchan-Ashwatthama-poster2.jpg",
+      "videoUrl": "https://youtu.be/eiSyCBNUK9k?si=e8Hzfm8S2Kqq3zQ8",
+      "duration": "0:45",
+      "clientTier": "Feature Film",
+      "resolution": "4K DCI (4096x2160)",
+      "turnaroundTime": "18 Hours",
+      "software": [
+        "Silhouette FX",
+        "Mocha Pro",
+        "Nuke"
+      ],
+      "description": "Sub-pixel articulation of windblown synthetic hair, flying sparks, and vehicle edges across rapid camera pan with heavy motion blur.",
+      "beforeImage": "https://www.bizasialive.com/wp-content/uploads/2024/06/Amitabh-Bachchan-Ashwatthama-poster2.jpg",
+      "afterImage": "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop",
+      "matteImage": "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1200&auto=format&fit=crop",
+      "featured": true
+    },
+    {
+      "id": "reel-02",
+      "title": "Sci-Fi Wasteland: Complex Rig & Stunt Wire Removal",
+      "category": "Wire Removal",
+      "tag": "WIRE & CRANE REMOVAL",
+      "thumbnail": "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1200&auto=format&fit=crop",
+      "videoUrl": "https://youtu.be/KFTz73u9FuA?si=dHfjn17oLDJOtsDo",
+      "duration": "1:12",
+      "clientTier": "Feature Film",
+      "resolution": "6K RED RAW",
+      "turnaroundTime": "24 Hours",
+      "software": [
+        "Nuke Studio",
+        "Boris FX Mocha",
+        "Photoshop"
+      ],
+      "description": "Seamless frame-by-frame clean plate reconstruction under fluctuating volumetric smoke, multi-point lighting, and dynamic shadows.",
+      "beforeImage": "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1200&auto=format&fit=crop",
+      "afterImage": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop",
+      "featured": true
+    },
+    {
+      "id": "reel-03",
+      "title": "Hero Mech Armour: 3D Projection Clean Prep",
+      "category": "Digital Paint",
+      "tag": "CLEAN PLATE & PREP",
+      "thumbnail": "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop",
+      "videoUrl": "https://youtu.be/ry0jO5o83Nw?si=p9bFchElJ2GyF8d7",
+      "duration": "0:58",
+      "clientTier": "OTT Series",
+      "resolution": "4K ProRes 4444 XQ",
+      "turnaroundTime": "12 Hours",
+      "software": [
+        "Nuke",
+        "Silhouette",
+        "Maya Projection"
+      ],
+      "description": "Camera tracker projection paint to cleanly remove tracking markers and boom mic reflections across curved metallic armor surfaces.",
+      "beforeImage": "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop",
+      "afterImage": "https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=1200&auto=format&fit=crop",
+      "featured": true
+    },
+    {
+      "id": "reel-04",
+      "title": "Neon Odyssey: Skin Retouching & Digital De-Aging",
+      "category": "Beauty & De-Aging",
+      "tag": "BEAUTY & SKIN PREP",
+      "thumbnail": "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1200&auto=format&fit=crop",
+      "videoUrl": "https://youtu.be/SSeQzCNbZkA?si=9GuzSxlvgYOQADVC",
+      "duration": "0:35",
+      "clientTier": "Commercial",
+      "resolution": "8K Sony Venice",
+      "turnaroundTime": "14 Hours",
+      "software": [
+        "Nuke",
+        "Mocha Pro",
+        "DaVinci Resolve"
+      ],
+      "description": "High-frequency frequency separation and optical flow tracking for natural, non-plastic skin texture preservation and tattoo removal.",
+      "beforeImage": "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1200&auto=format&fit=crop",
+      "afterImage": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop",
+      "featured": true
+    },
+    {
+      "id": "reel-05",
+      "title": "Deep Space Combat: Stereoscopic 3D Native Conversion",
+      "category": "Stereo 3D",
+      "tag": "NATIVE 3D CONVERSION",
+      "thumbnail": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop",
+      "videoUrl": "https://youtu.be/D7ceZNI8wWo?si=2K9tSwxPDYE9Wdb-",
+      "duration": "1:20",
+      "clientTier": "Feature Film",
+      "resolution": "4K DCI Stereo Pair",
+      "turnaroundTime": "36 Hours",
+      "software": [
+        "Nuke Ocula",
+        "Silhouette",
+        "Maya"
+      ],
+      "description": "Full depth-map creation, occluded background inpainting, and clean dual-eye convergence alignment for IMAX stereoscopic release.",
+      "beforeImage": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop",
+      "afterImage": "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1200&auto=format&fit=crop",
+      "featured": true
+    },
+    {
+      "id": "reel-06",
+      "title": "Apocalyptic Citadel: Environment Extension & Matte Comp",
+      "category": "Full Comp",
+      "tag": "CG INTEGRATION & COMP",
+      "thumbnail": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop",
+      "videoUrl": "https://youtu.be/GhC_SXgXrqM?si=mWstjjcE5BvNimLq",
+      "duration": "0:50",
+      "clientTier": "OTT Series",
+      "resolution": "4K ACEScg",
+      "turnaroundTime": "20 Hours",
+      "software": [
+        "Nuke Studio",
+        "Houdini Pyro",
+        "Maya"
+      ],
+      "description": "Deep compositing with volumetric atmosphere integration, light wrap pass, atmospheric haze, and 35mm film grain matching.",
+      "beforeImage": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop",
+      "afterImage": "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1200&auto=format&fit=crop",
+      "featured": true
+    },
+    {
+      "id": "reel-07",
+      "title": "Hypercar Launch: Reflection & Screen Replacement",
+      "category": "Digital Paint",
+      "tag": "SCREEN & REFLECTION CLEANUP",
+      "thumbnail": "https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1200&auto=format&fit=crop",
+      "videoUrl": "https://youtu.be/Y-QQwbXbKn4?si=e9FDdNacc1SeGdQw",
+      "duration": "0:40",
+      "clientTier": "Commercial",
+      "resolution": "4K UHD (3840x2160)",
+      "turnaroundTime": "8 Hours",
+      "software": [
+        "Mocha Pro",
+        "Nuke",
+        "Photoshop"
+      ],
+      "description": "Removing studio lighting rigs and crew reflections from dynamic high-gloss metallic curves and curved windshield glass.",
+      "beforeImage": "https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1200&auto=format&fit=crop",
+      "afterImage": "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop"
+    },
+    {
+      "id": "reel-08",
+      "title": "Battle Arena: Crowd Duplication & Plate Prep",
+      "category": "Roto",
+      "tag": "CROWD MULTIPLICATION ROTO",
+      "thumbnail": "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=1200&auto=format&fit=crop",
+      "videoUrl": "https://youtu.be/Rap7zm3-N68?si=_ptcc1DD_Juc20cp",
+      "duration": "1:05",
+      "clientTier": "Feature Film",
+      "resolution": "4K ProRes 4444",
+      "turnaroundTime": "24 Hours",
+      "software": [
+        "Silhouette",
+        "Mocha Pro"
+      ],
+      "description": "Extracting 80+ unique background actors with sub-frame costume cloth accuracy for stadium expansion composite.",
+      "beforeImage": "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=1200&auto=format&fit=crop",
+      "afterImage": "https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=1200&auto=format&fit=crop"
+    },
+    {
+      "id": "reel-09",
+      "title": "Cyber Heist: Marker Removal & Lens Distortion Match",
+      "category": "Digital Paint",
+      "tag": "ANAMORPHIC CLEANUP",
+      "thumbnail": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=1200&auto=format&fit=crop",
+      "videoUrl": "https://youtu.be/5dTituXoHqU?si=2j0q6cpmTdoUnsvS",
+      "duration": "0:52",
+      "clientTier": "OTT Series",
+      "resolution": "4K Anamorphic (2.39:1)",
+      "turnaroundTime": "16 Hours",
+      "software": [
+        "Nuke",
+        "3DEqualizer",
+        "Mocha"
+      ],
+      "description": "Anamorphic lens distortion grids matched perfectly during tracking marker cleanup and camera shadow eradication.",
+      "beforeImage": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=1200&auto=format&fit=crop",
+      "afterImage": "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1200&auto=format&fit=crop"
+    }
+  ],
+  "vfxBreakdowns": [
+    {
+      "id": "breakdown-01",
+      "title": "Cyberpunk Cyber Runner: Fine Hair & Motion Blur Roto",
+      "category": "Roto",
+      "tag": "HAIR ALPHA MATTE",
+      "beforeImage": "https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=1200&auto=format&fit=crop",
+      "afterImage": "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop",
+      "resolution": "4K DCI (4096x2160)",
+      "turnaroundTime": "18 Hours",
+      "software": [
+        "Silhouette FX",
+        "Nuke Studio",
+        "Mocha Pro"
+      ],
+      "description": "Sub-pixel articulation of windblown synthetic hair, flying sparks, and vehicle edges across rapid camera pan with heavy motion blur.",
+      "featured": true
+    },
+    {
+      "id": "breakdown-02",
+      "title": "Sci-Fi Wasteland: Stunt Rig & Safety Wire Extraction",
+      "category": "Wire Removal",
+      "tag": "STUNT RIG CLEANUP",
+      "beforeImage": "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1200&auto=format&fit=crop",
+      "afterImage": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop",
+      "resolution": "6K RED RAW",
+      "turnaroundTime": "24 Hours",
+      "software": [
+        "Nuke Studio",
+        "Boris FX Mocha",
+        "Photoshop"
+      ],
+      "description": "Seamless frame-by-frame clean plate reconstruction under fluctuating volumetric smoke, multi-point lighting, and dynamic shadows.",
+      "featured": true
+    },
+    {
+      "id": "breakdown-03",
+      "title": "Hero Mech Armour: 3D Projection & Boom Reflection Clean",
+      "category": "Digital Paint",
+      "tag": "CLEAN PLATE PREP",
+      "beforeImage": "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop",
+      "afterImage": "https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=1200&auto=format&fit=crop",
+      "resolution": "4K ProRes 4444 XQ",
+      "turnaroundTime": "12 Hours",
+      "software": [
+        "Nuke",
+        "Silhouette",
+        "Maya Projection"
+      ],
+      "description": "Camera tracker projection paint to cleanly remove tracking markers and boom mic reflections across curved metallic armor surfaces.",
+      "featured": true
+    },
+    {
+      "id": "breakdown-04",
+      "title": "Neon Odyssey: Skin Retouching & Organic De-Aging",
+      "category": "Beauty & De-Aging",
+      "tag": "SKIN TEXTURE PREP",
+      "beforeImage": "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1200&auto=format&fit=crop",
+      "afterImage": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop",
+      "resolution": "8K Sony Venice",
+      "turnaroundTime": "14 Hours",
+      "software": [
+        "Nuke",
+        "Mocha Pro",
+        "DaVinci Resolve"
+      ],
+      "description": "High-frequency frequency separation and optical flow tracking for natural, non-plastic skin texture preservation and tattoo removal.",
+      "featured": true
+    },
+    {
+      "id": "breakdown-05",
+      "title": "Deep Space Combat: Stereoscopic 3D Depth Generation",
+      "category": "Stereo 3D",
+      "tag": "STEREO DEPTH PAIR",
+      "beforeImage": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop",
+      "afterImage": "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1200&auto=format&fit=crop",
+      "resolution": "4K DCI Stereo Pair",
+      "turnaroundTime": "36 Hours",
+      "software": [
+        "Nuke Ocula",
+        "Silhouette",
+        "Maya"
+      ],
+      "description": "Full depth-map creation, occluded background inpainting, and clean dual-eye convergence alignment for IMAX stereoscopic release.",
+      "featured": true
+    },
+    {
+      "id": "breakdown-06",
+      "title": "Apocalyptic Citadel: Deep Comp & Matte Extension",
+      "category": "Full Comp",
+      "tag": "MATTE COMPOSITE",
+      "beforeImage": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop",
+      "afterImage": "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1200&auto=format&fit=crop",
+      "resolution": "4K ACEScg",
+      "turnaroundTime": "20 Hours",
+      "software": [
+        "Nuke Studio",
+        "Houdini Pyro",
+        "Maya"
+      ],
+      "description": "Deep compositing with volumetric atmosphere integration, light wrap pass, atmospheric haze, and 35mm film grain matching.",
+      "featured": true
+    },
+    {
+      "id": "breakdown-07",
+      "title": "Hypercar Highway: Studio Light Rig & Glass Cleanup",
+      "category": "Digital Paint",
+      "tag": "AUTOMOTIVE CLEANUP",
+      "beforeImage": "https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1200&auto=format&fit=crop",
+      "afterImage": "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop",
+      "resolution": "4K UHD (3840x2160)",
+      "turnaroundTime": "8 Hours",
+      "software": [
+        "Mocha Pro",
+        "Nuke",
+        "Photoshop"
+      ],
+      "description": "Removing studio lighting rigs and crew reflections from dynamic high-gloss metallic curves and curved windshield glass."
+    },
+    {
+      "id": "breakdown-08",
+      "title": "Colosseum Arena: Stadium Crowd Roto Alpha Extraction",
+      "category": "Roto",
+      "tag": "CROWD MULTIPLICATION",
+      "beforeImage": "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=1200&auto=format&fit=crop",
+      "afterImage": "https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=1200&auto=format&fit=crop",
+      "resolution": "4K ProRes 4444",
+      "turnaroundTime": "24 Hours",
+      "software": [
+        "Silhouette",
+        "Mocha Pro"
+      ],
+      "description": "Extracting 80+ unique background actors with sub-frame costume cloth accuracy for stadium expansion composite."
+    },
+    {
+      "id": "breakdown-09",
+      "title": "Cyber Vault: Anamorphic Flare & Marker Removal",
+      "category": "Digital Paint",
+      "tag": "ANAMORPHIC CLEAN",
+      "beforeImage": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=1200&auto=format&fit=crop",
+      "afterImage": "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1200&auto=format&fit=crop",
+      "resolution": "4K Anamorphic (2.39:1)",
+      "turnaroundTime": "16 Hours",
+      "software": [
+        "Nuke",
+        "3DEqualizer",
+        "Mocha"
+      ],
+      "description": "Anamorphic lens distortion grids matched perfectly during tracking marker cleanup and camera shadow eradication."
+    }
+  ],
+  "moviePosters": [
+    {
+      "id": "poster-dune2",
+      "title": "3 Idiots (2009) - Posters — The Movie Database (...",
+      "year": "2024",
+      "category": "Sci-Fi Feature Film",
+      "studio": "Legendary / Warner Bros.",
+      "posterUrl": "https://image.tmdb.org/t/p/original/6XvTV8hd0VYIpe7OQoRY0Xhkf1y.jpg",
+      "tag": "FEATURE FILM",
+      "vfxWork": [
+        "Sub-pixel Ornithopter Roto",
+        "Sandstorm Debris Extraction",
+        "Clean Plate 4K Extension"
+      ],
+      "highlight": "1,800+ Sand & Wire Cleanup Frames"
+    },
+    {
+      "id": "poster-avatar2",
+      "title": "Rani Mukherjee in hichki Official poster | Hichk...",
+      "year": "2022",
+      "category": "Epic Sci-Fi 3D",
+      "studio": "20th Century Studios / Lightstorm",
+      "posterUrl": "https://i.pinimg.com/originals/90/d1/9b/90d19b0ace35db058cbc4975bb6b2c2d.jpg",
+      "tag": "STEREO 3D",
+      "vfxWork": [
+        "Underwater Bubble Separation",
+        "Stereo L/R Eye Matching",
+        "High-Motion Bioluminescent Splines"
+      ],
+      "highlight": "Native Stereo 3D Alpha Mattes"
+    },
+    {
+      "id": "poster-batman",
+      "title": "Mirzapur",
+      "year": "2022",
+      "category": "Neo-Noir Superhero",
+      "studio": "Warner Bros. Pictures",
+      "posterUrl": "https://static.tvmaze.com/uploads/images/original_untouched/619/1549499.jpg",
+      "tag": "BLOCKBUSTER",
+      "vfxWork": [
+        "Rain Plate Clean Up",
+        "Batmobile Stunt Rig Erasure",
+        "Anamorphic Lens Flare Preservation"
+      ],
+      "highlight": "Sub-Luminance Rain Streak Extraction"
+    },
+    {
+      "id": "poster-cyberpunk",
+      "title": "SPECIAL OPS | Movies by genre, Special ops, Adve...",
+      "year": "2023",
+      "category": "Cinematic Game Production",
+      "studio": "CD Projekt RED",
+      "posterUrl": "https://i.pinimg.com/736x/29/16/6e/29166e31c8350428dec5a9fd3c9f7f54.jpg",
+      "tag": "CINEMATIC TRAILER",
+      "vfxWork": [
+        "Neon Reflection Roto",
+        "Augmentation Metal Cleanup",
+        "High-Frame-Rate Motion Splines"
+      ],
+      "highlight": "Multi-Pass Clean Plate Projections"
+    },
+    {
+      "id": "poster-oppenheimer",
+      "title": "Insidious (2011) - Posters — The Movie Database ...",
+      "year": "2023",
+      "category": "Historical Epic",
+      "studio": "Universal Pictures / Syncopy",
+      "posterUrl": "https://www.themoviedb.org/t/p/original/t2S1Aoh3itdYYH5hyN12lQoRB98.jpg",
+      "tag": "IMAX 70MM",
+      "vfxWork": [
+        "IMAX Large Format Paint",
+        "Dust & Spark Matte Separation",
+        "Zero-Artifact Clean Plates"
+      ],
+      "highlight": "Native 8K Resolution Clean Up"
+    },
+    {
+      "id": "poster-spiderverse",
+      "title": "Spider-Man: Across the Spider-Verse",
+      "year": "2023",
+      "category": "Animated Multiverse Epic",
+      "studio": "Sony Pictures Animation",
+      "posterUrl": "https://images.unsplash.com/photo-1635805737707-575885ab0820?q=80&w=800&auto=format&fit=crop",
+      "tag": "ANIMATION / VFX",
+      "vfxWork": [
+        "Stylized Ink & Halftone Isolation",
+        "Multi-Layer Matte Breakdown",
+        "Dynamic Speed-Line Prep"
+      ],
+      "highlight": "Complex Multi-Dimensional Alpha Channels"
+    },
+    {
+      "id": "poster-johnwick4",
+      "title": "Ginny & Georgia (Netflix) Movie Poster",
+      "year": "2023",
+      "category": "High-Octane Action",
+      "studio": "Lionsgate / 87Eleven",
+      "posterUrl": "https://static1.tribute.ca/poster/660x980/ginny-georgia-netflix-166564.jpg",
+      "tag": "ACTION CINEMA",
+      "vfxWork": [
+        "Stunt Harness & Cable Removal",
+        "Muzzle Flash Reflection Clean Plates",
+        "Traffic Plate Stitches"
+      ],
+      "highlight": "Overnight Stunt Wire Rig Removal"
+    },
+    {
+      "id": "poster-strangerthings",
+      "title": "Animal Poster: Anil Kapoor's first look as Ranbi...",
+      "year": "2022",
+      "category": "Supernatural Horror Series",
+      "studio": "Netflix / 21 Laps",
+      "posterUrl": "https://www.masala.com/wp-content/uploads/cloud/2023/09/22/image-17.png",
+      "tag": "OTT FLAGSHIP",
+      "vfxWork": [
+        "Tentacle & Vine Matting",
+        "Upside Down Ash Particle Extraction",
+        "Prosthetic Seam Blend Paint"
+      ],
+      "highlight": "First-Pass QC Approved by Netflix"
+    },
+    {
+      "id": "poster-deadpool",
+      "title": "Toxic - Standard Showtimes at Grand Mall Cinema ...",
+      "year": "2024",
+      "category": "Superhero Comedy Action",
+      "studio": "Marvel Studios / Disney",
+      "posterUrl": "https://cinemaseats.net/movies/toxic/poster",
+      "tag": "MARVEL VFX",
+      "vfxWork": [
+        "Claw & Weapon Digital Insert Prep",
+        "Suit Seam Fixes",
+        "Explosive Debris Clean Up"
+      ],
+      "highlight": "Sub-Pixel Mask & Edge Preservation"
+    },
+    {
+      "id": "poster-topgun",
+      "title": "Baahubali: The Beginning (2015)",
+      "year": "2022",
+      "category": "Aviation Action",
+      "studio": "Paramount Pictures / Skydance",
+      "posterUrl": "https://m.media-amazon.com/images/M/MV5BNmNlYWMyYWUtMmVlNy00MzFkLTgxYTQtYzQ5ZTU1ZGYyNjYyXkEyXkFqcGc@._V1_.jpg",
+      "tag": "THEATRICAL",
+      "vfxWork": [
+        "Cockpit Camera Rig Erasure",
+        "Canopy Reflection Restoration",
+        "Cloud Horizon Clean Stitching"
+      ],
+      "highlight": "6-Camera Cockpit Rig Extraction"
+    },
+    {
+      "id": "poster-bladerunner",
+      "title": "Dune 2 Creates A Major Timothée Chalamet & Flore...",
+      "year": "2017",
+      "category": "Neo-Noir Cyberpunk",
+      "studio": "Warner Bros. / Alcon",
+      "posterUrl": "https://static1.srcdn.com/wordpress/wp-content/uploads/2024/01/dune-part-2-poster-showing-timothee-chalamet-as-paul-atreides-and-zendaya-as-chani-holding-daggers.jpeg",
+      "tag": "SCI-FI MASTERPIECE",
+      "vfxWork": [
+        "Hologram Boundary Extraction",
+        "Atmospheric Fog Isolation",
+        "Spinner Vehicle Rig Removal"
+      ],
+      "highlight": "Volumetric Fog Silhouette Extraction"
+    },
+    {
+      "id": "poster-rrr",
+      "title": "Camera Used In Kantara Movie at Merrill Lavallee...",
+      "year": "2022",
+      "category": "Period Action Drama",
+      "studio": "DVV Entertainment",
+      "posterUrl": "https://stat4.bollywoodhungama.in/wp-content/uploads/2022/10/Kantara.jpeg",
+      "tag": "GLOBAL BLOCKBUSTER",
+      "vfxWork": [
+        "Tiger & Fire Sequence Cleanup",
+        "Crowd Replication Rotoscopy",
+        "Bridge Sequence Stunt Wire Removal"
+      ],
+      "highlight": "Over 2,400 Fire Particle Alpha Passes"
+    },
+    {
+      "id": "poster-interstellar",
+      "title": "KGF CHAPTER 2 MOVIE POSTER on Behance",
+      "year": "2014",
+      "category": "Sci-Fi Space Odyssey",
+      "studio": "Paramount / Warner Bros.",
+      "posterUrl": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/a52b5490524441.5e198518e7e18.png",
+      "tag": "DEEP SPACE",
+      "vfxWork": [
+        "Black Hole Accretion Disk Matting",
+        "Helmet Visor Reflection Paint",
+        "Zero-G Wire Erasures"
+      ],
+      "highlight": "Precision Helmet Glass Reflection Paint"
+    },
+    {
+      "id": "poster-gotg3",
+      "title": "Stree 2 | Where to watch streaming and online in...",
+      "year": "2023",
+      "category": "Cosmic Adventure",
+      "studio": "Marvel Studios",
+      "posterUrl": "https://d32qys9a6wm9no.cloudfront.net/images/movies/poster/e4/474219a925254885b6326de776ba142d_original.jpg?t=1721809969",
+      "tag": "COSMIC VFX",
+      "vfxWork": [
+        "Organic Creature Hair Roto",
+        "Cybernetic Prosthetic Cleanup",
+        "Space Station Clean Plates"
+      ],
+      "highlight": "Complex Fur & Organic Alpha Mattes"
+    },
+    {
+      "id": "poster-madmax",
+      "title": "Jawan - Film 2023 - FILMSTARTS.de",
+      "year": "2024",
+      "category": "Post-Apocalyptic Action",
+      "studio": "Warner Bros. Pictures",
+      "posterUrl": "https://de.web.img3.acsta.net/pictures/23/04/18/07/56/0976694.jpg",
+      "tag": "WARFARE EPIC",
+      "vfxWork": [
+        "War Rig Stunt Rig Erase",
+        "Sandstorm Horizon Extension",
+        "Vehicle Track Clean Plate Projections"
+      ],
+      "highlight": "High-Motion Dust Rig Cleanup"
+    },
+    {
+      "id": "poster-lastofus",
+      "title": "Pushpa 2: The Rule Poster",
+      "year": "2023",
+      "category": "Post-Pandemic Drama",
+      "studio": "HBO / PlayStation Productions",
+      "posterUrl": "https://assetscdn1.paytm.com/images/cinema/pushpa-2-(1)-(1)-ff7e1f10-fbfc-11ee-bfde-1dbbef51e33c.jpg?format=webp",
+      "tag": "HBO ORIGINAL",
+      "vfxWork": [
+        "Fungal Infected Prosthetic Blend",
+        "Overgrown City Clean Plate Prep",
+        "Stunt Safety Harness Erase"
+      ],
+      "highlight": "Pristine Environmental Extensions"
+    }
+  ],
+  "homePostersHeadline": "Th.    ",
+  "homePostersHeadlineLine1": "       THE team",
+  "homePostersHeadlineLine2": "    behind ",
+  "homePostersHeadlineLine3": " BLOCKBUSTERS",
+  "homePostersSubheadline": "Sub-Pixel Rotoscopy & Digital Paint",
+  "homePostersDescription": "These floating posters showcase the high-precision visual effects built by our collaborative team.",
+  "homePostersCtaText": "REQUEST PILOT SHOT",
+  "collageTiles": [
+    {
+      "id": "tile-01",
+      "title": "GHOST RUNNER COMP",
+      "category": "VFX Action",
+      "image": "https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=800&auto=format&fit=crop",
+      "videoUrl": "https://www.youtube.com/watch?v=ScMzIvxBSi4",
+      "badge": "4K ROTO",
+      "glowColor": "#66fcf1"
+    },
+    {
+      "id": "tile-02",
+      "title": "WRC RALLY RIG REMOVAL",
+      "category": "Automotive Clean",
+      "image": "https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=800&auto=format&fit=crop",
+      "videoUrl": "https://www.youtube.com/watch?v=kJQP7kiw5Fk",
+      "badge": "CLEAN PLATE",
+      "glowColor": "#00ffaa"
+    },
+    {
+      "id": "tile-03",
+      "title": "TOMB RAIDER WIREWORK",
+      "category": "Stunt Wire Extraction",
+      "image": "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=800&auto=format&fit=crop",
+      "videoUrl": "https://www.youtube.com/watch?v=ysz5S6PUM-U",
+      "badge": "WIRE REMOVAL",
+      "glowColor": "#66fcf1"
+    },
+    {
+      "id": "tile-04",
+      "title": "SNIPER OPS BEAUTY & SMOKE",
+      "category": "Military VFX",
+      "image": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=800&auto=format&fit=crop",
+      "videoUrl": "https://www.youtube.com/watch?v=EngW7tLk6R8",
+      "badge": "DE-AGING",
+      "glowColor": "#38bdf8"
+    },
+    {
+      "id": "tile-05",
+      "title": "NEON MECH ARMOR PREP",
+      "category": "Hard Surface Roto",
+      "image": "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=800&auto=format&fit=crop",
+      "videoUrl": "https://www.youtube.com/watch?v=LXb3EKWsInQ",
+      "badge": "PROJECTION",
+      "glowColor": "#a855f7"
+    },
+    {
+      "id": "tile-06",
+      "title": "DEEP SPACE STEREO 3D",
+      "category": "Stereo Pair Native",
+      "image": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800&auto=format&fit=crop",
+      "videoUrl": "https://www.youtube.com/watch?v=fJ9rUzIMcZQ",
+      "badge": "STEREO 3D",
+      "glowColor": "#ec4899"
+    },
+    {
+      "id": "tile-07",
+      "title": "CYBER CITY MATTE PAINT",
+      "category": "Environment Comp",
+      "image": "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=800&auto=format&fit=crop",
+      "videoUrl": "https://www.youtube.com/watch?v=9bZkp7q19f0",
+      "badge": "DEEP COMP",
+      "glowColor": "#66fcf1"
+    },
+    {
+      "id": "tile-08",
+      "title": "ARENA CROWD EXTENSION",
+      "category": "Complex Alpha Extraction",
+      "image": "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=800&auto=format&fit=crop",
+      "videoUrl": "https://www.youtube.com/watch?v=C0DPdy98e4c",
+      "badge": "ALPHA EXTRACTION",
+      "glowColor": "#22c55e"
+    },
+    {
+      "id": "tile-09",
+      "title": "ANAMORPHIC LENS GRID",
+      "category": "Prep & Tracking Clean",
+      "image": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=800&auto=format&fit=crop",
+      "videoUrl": "https://www.youtube.com/watch?v=kXYiU_JCYtU",
+      "badge": "TRACKING CLEAN",
+      "glowColor": "#f59e0b"
+    },
+    {
+      "id": "tile-10",
+      "title": "QUANTUM LAB PARTICLES",
+      "category": "VFX Clean Plate",
+      "image": "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=800&auto=format&fit=crop",
+      "videoUrl": "https://www.youtube.com/watch?v=ScMzIvxBSi4",
+      "badge": "VOLUMETRICS",
+      "glowColor": "#66fcf1"
+    },
+    {
+      "id": "tile-11",
+      "title": "SPEEDWAY CAR CLEANUP",
+      "category": "Automotive VFX",
+      "image": "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=800&auto=format&fit=crop",
+      "videoUrl": "https://www.youtube.com/watch?v=kJQP7kiw5Fk",
+      "badge": "PAINT PREP",
+      "glowColor": "#3b82f6"
+    },
+    {
+      "id": "tile-12",
+      "title": "TACTICAL GEAR DE-AGING",
+      "category": "Skin Texture Prep",
+      "image": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop",
+      "videoUrl": "https://www.youtube.com/watch?v=ysz5S6PUM-U",
+      "badge": "BEAUTY VFX",
+      "glowColor": "#06b6d4"
+    }
+  ],
+  "rpwFeatureImages": {
+    "multi-project-matrix": "/uploads/img_rpwFeatureImages_multi-project-matrix_1788364494170.png",
+    "shots-live-progress": "/uploads/img_rpwFeatureImages_shots-live-progress_1788364494174.png",
+    "chat-file-attachments-1gb": "/uploads/img_rpwFeatureImages_chat-file-attachments-1gb_1788364494178.png"
+  },
+  "rpwFeatureOverrides": {},
+  "rpwShowcaseAutoRotate": true,
+  "rpwShowcaseRotateInterval": 3.5,
+  "rpwShowcaseSpeed": 3.5
+}

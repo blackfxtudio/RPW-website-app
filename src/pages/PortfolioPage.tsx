@@ -1,28 +1,25 @@
 import React, { useState } from 'react';
-import { PORTFOLIO_REELS, COLLAGE_TILES } from '../data/portfolioData';
-import { PortfolioShowreelItem } from '../types';
+import { PORTFOLIO_REELS, VFX_BREAKDOWNS } from '../data/portfolioData';
+import { PortfolioShowreelItem, VfxBreakdownItem } from '../types';
 import { CollageReelWall } from '../components/portfolio/CollageReelWall';
 import { ReelCinemaModal } from '../components/portfolio/ReelCinemaModal';
-import { Play, Sliders, Layers, Zap, Sparkles, Filter, Search, ArrowUpRight, CheckCircle2, Film, ShieldCheck } from 'lucide-react';
+import { VfxBreakdownModal } from '../components/portfolio/VfxBreakdownModal';
+import { Sliders, Zap, Search, ArrowUpRight, CheckCircle2, ShieldCheck, Eye, Layers } from 'lucide-react';
 import { useSiteConfig } from '../context/SiteConfigContext';
 
 interface PortfolioPageProps {
   onOpenTestShotModal: (serviceName?: string) => void;
+  isActive?: boolean;
 }
 
-export const PortfolioPage: React.FC<PortfolioPageProps> = ({ onOpenTestShotModal }) => {
+export const PortfolioPage: React.FC<PortfolioPageProps> = ({ onOpenTestShotModal, isActive = true }) => {
   const { config } = useSiteConfig();
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  
+  // Modals
   const [selectedReelModal, setSelectedReelModal] = useState<PortfolioShowreelItem | null>(null);
-  const [sliderPositions, setSliderPositions] = useState<{ [id: string]: number }>({
-    'reel-01': 50,
-    'reel-02': 50,
-    'reel-03': 50,
-    'reel-04': 50,
-    'reel-05': 50,
-    'reel-06': 50,
-  });
+  const [selectedBreakdownModal, setSelectedBreakdownModal] = useState<VfxBreakdownItem | null>(null);
 
   const categories = [
     'All',
@@ -34,227 +31,79 @@ export const PortfolioPage: React.FC<PortfolioPageProps> = ({ onOpenTestShotModa
     'Full Comp',
   ];
 
-  const filteredReels = PORTFOLIO_REELS.filter((reel) => {
-    const matchesCategory = selectedCategory === 'All' || reel.category === selectedCategory;
+  // 1. Video Showreels for 3D Wall
+  const allReels = config.portfolioReels && config.portfolioReels.length > 0 ? config.portfolioReels : PORTFOLIO_REELS;
+
+  // 2. VFX Breakdown Images (A/B Plate Comparisons)
+  const allBreakdowns = config.vfxBreakdowns && config.vfxBreakdowns.length > 0 ? config.vfxBreakdowns : VFX_BREAKDOWNS;
+
+  const filteredBreakdowns = allBreakdowns.filter((item) => {
+    const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
     const matchesSearch =
       searchQuery.trim() === '' ||
-      reel.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      reel.tag.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      reel.description.toLowerCase().includes(searchQuery.toLowerCase());
+      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.tag.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.description.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
-  const handleTileSelectFromCollage = (tile: typeof COLLAGE_TILES[0]) => {
-    // Map collage tile to full reel item or create temporary item
-    const matchingReel = PORTFOLIO_REELS.find((r) => r.title.toLowerCase().includes(tile.title.toLowerCase())) || {
-      id: tile.id,
-      title: tile.title,
-      category: (tile.category.includes('Roto') ? 'Roto' : tile.category.includes('Clean') ? 'Digital Paint' : 'Wire Removal') as any,
-      tag: tile.badge,
-      thumbnail: tile.image,
-      videoUrl: tile.videoUrl,
+  const handleTileSelectFromCollage = (tileOrReel: any) => {
+    if (tileOrReel.title && (tileOrReel.beforeImage || tileOrReel.videoUrl)) {
+      setSelectedReelModal(tileOrReel);
+      return;
+    }
+    const matchingReel = allReels.find((r) => r.title.toLowerCase().includes(tileOrReel.title?.toLowerCase())) || {
+      id: tileOrReel.id || 'reel-custom',
+      title: tileOrReel.title || 'Production Breakdown',
+      category: (tileOrReel.category?.includes('Roto') ? 'Roto' : tileOrReel.category?.includes('Clean') ? 'Digital Paint' : 'Wire Removal') as any,
+      tag: tileOrReel.badge || 'MASTER COMP',
+      thumbnail: tileOrReel.image,
+      videoUrl: tileOrReel.videoUrl || '',
       duration: '1:00',
       clientTier: 'Feature Film',
       resolution: '4K DCI Master',
       turnaroundTime: '24 Hours',
       software: ['Silhouette FX', 'Nuke', 'Mocha Pro'],
-      description: `High precision ${tile.category} pipeline shot delivered with sub-pixel edge preservation, matte fidelity, and matched organic plate grain.`,
-      beforeImage: tile.image,
-      afterImage: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop',
+      description: `High precision pipeline shot delivered with sub-pixel edge preservation, matte fidelity, and matched organic plate grain.`,
+      beforeImage: tileOrReel.image,
+      afterImage: tileOrReel.image,
     };
     setSelectedReelModal(matchingReel);
   };
 
-  const handleSliderMove = (id: string, e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
-    const pct = Math.round((x / rect.width) * 100);
-    setSliderPositions((prev) => ({ ...prev, [id]: pct }));
-  };
-
   return (
     <div className="min-h-screen bg-[#05070b] text-[#9daab4] selection:bg-[#66fcf1] selection:text-[#05070b]">
-      {/* 1. Top Section: 3D Dynamic Collage Reel Wall (Matching user uploaded reference image) */}
+      {/* 1. Top Section: 3D Dynamic Collage Reel Wall (Videos Play Continuously in Live 20s Matrix) */}
       <CollageReelWall
+        isActive={isActive}
         onSelectReel={handleTileSelectFromCollage}
         onOpenTestShotModal={() => onOpenTestShotModal()}
       />
 
-      {/* 2. Interactive Discipline Filter & Search Toolbar */}
-      <section className="sticky top-[78px] z-40 bg-[#05070b]/95 backdrop-blur-xl border-y border-white/10 py-4 px-4 sm:px-8 md:px-12 shadow-2xl">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          {/* Categories */}
-          <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-none">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-full text-xs font-mono font-bold tracking-wider whitespace-nowrap transition-all duration-300 ${
-                  selectedCategory === cat
-                    ? 'bg-[#66fcf1] text-[#05070b] shadow-[0_0_20px_rgba(102,252,241,0.4)]'
-                    : 'bg-white/5 text-[#9daab4] border border-white/10 hover:border-[#66fcf1]/50 hover:text-white'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
+      {/* 2. Featured VFX Production Breakdown Images (4 Curated Shots) */}
+      <section className="py-20 px-4 sm:px-8 md:px-12 max-w-7xl mx-auto">
+        <div className="text-center max-w-3xl mx-auto mb-14">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#66fcf1]/10 border border-[#66fcf1]/30 text-[#66fcf1] text-[11px] font-['Poppins',sans-serif] font-semibold tracking-[0.22em] uppercase mb-3 shadow-[0_0_20px_rgba(102,252,241,0.15)]">
+            <Layers className="w-3.5 h-3.5 text-[#66fcf1]" />
+            <span>PRODUCTION BREAKDOWNS [{allBreakdowns.slice(0, 4).length} SHOTS]</span>
           </div>
-
-          {/* Search Box */}
-          <div className="relative w-full md:w-72 shrink-0">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#87949c]" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search shots, hair roto, wires..."
-              className="w-full bg-[#08111a] border border-white/15 rounded-full pl-10 pr-4 py-2 text-xs text-white placeholder-[#87949c] focus:outline-none focus:border-[#66fcf1]"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#87949c] hover:text-white"
-              >
-                ✕
-              </button>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* 3. Featured Interactive VFX Production Grid */}
-      <section className="py-16 sm:py-24 px-4 sm:px-8 md:px-12 max-w-7xl mx-auto">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
-          <div>
-            <div className="inline-flex items-center gap-2 text-[#66fcf1] text-xs font-mono font-bold uppercase tracking-widest mb-2">
-              <span className="w-5 h-[1px] bg-[#66fcf1]" />
-              <span>PRODUCTION SHOWCASE [{filteredReels.length} SHOTS]</span>
-            </div>
-            <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight">
-              Verified Production <span className="text-[#66fcf1]">Breakdowns</span>
-            </h2>
-          </div>
-          <p className="text-xs font-mono text-[#87949c] max-w-sm">
-            Drag the interactive slider on each card to compare raw film plates against final matte alphas and clean plates.
+          <h2 className="font-['Poppins',sans-serif] text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight uppercase">
+            VFX Breakdown <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#66fcf1] to-[#bbf3f0]">Images</span>
+          </h2>
+          <p className="font-['Poppins',sans-serif] text-sm sm:text-base text-slate-300 mt-3 max-w-xl mx-auto leading-relaxed">
+            Interactive sub-pixel A/B swipe plates comparing Raw Camera Ingest Plates against Clean Plates & Delivered Roto Mattes. Drag slider or click to inspect.
           </p>
         </div>
 
-        {/* Grid of Work */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-          {filteredReels.map((reel) => {
-            const currentSlider = sliderPositions[reel.id] ?? 50;
-            return (
-              <div
-                key={reel.id}
-                className="group relative rounded-2xl bg-[#08111a] border border-white/10 hover:border-[#66fcf1]/60 transition-all duration-500 overflow-hidden shadow-2xl flex flex-col"
-              >
-                {/* Visual Wipe / Thumbnail Area */}
-                <div
-                  className="relative aspect-video w-full bg-black cursor-ew-resize select-none overflow-hidden"
-                  onMouseMove={(e) => handleSliderMove(reel.id, e)}
-                  onTouchMove={(e) => handleSliderMove(reel.id, e)}
-                  onClick={() => setSelectedReelModal(reel)}
-                >
-                  {/* Before Plate */}
-                  <img
-                    src={reel.beforeImage || reel.thumbnail}
-                    alt={reel.title}
-                    className="absolute inset-0 w-full h-full object-cover select-none"
-                  />
-
-                  {/* After Plate Clipped */}
-                  {reel.afterImage && (
-                    <div
-                      className="absolute inset-0 overflow-hidden pointer-events-none select-none"
-                      style={{
-                        clipPath: `polygon(0 0, ${currentSlider}% 0, ${currentSlider}% 100%, 0 100%)`,
-                      }}
-                    >
-                      <img
-                        src={reel.afterImage}
-                        alt="Processed Plate"
-                        className="absolute inset-0 w-full h-full object-cover select-none filter contrast-125 saturate-110"
-                      />
-                      <div className="absolute inset-0 bg-[#66fcf1]/15 mix-blend-color-dodge" />
-                    </div>
-                  )}
-
-                  {/* Wipe Slider Line */}
-                  <div
-                    className="absolute top-0 bottom-0 w-[2px] bg-[#66fcf1] shadow-[0_0_12px_#66fcf1] pointer-events-none"
-                    style={{ left: `${currentSlider}%` }}
-                  >
-                    <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-[#66fcf1] text-[#05070b] flex items-center justify-center font-bold text-[10px] shadow-md">
-                      ↔
-                    </div>
-                  </div>
-
-                  {/* Top Badges */}
-                  <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
-                    <span className="px-2.5 py-0.5 rounded-full bg-black/80 backdrop-blur-md border border-[#66fcf1]/40 text-[10px] font-mono font-bold text-[#66fcf1] uppercase">
-                      {reel.category}
-                    </span>
-                    <span className="px-2.5 py-0.5 rounded-full bg-black/80 backdrop-blur-md border border-white/20 text-[10px] font-mono text-white/90">
-                      {reel.resolution}
-                    </span>
-                  </div>
-
-                  {/* Bottom Hover Action Cue */}
-                  <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedReelModal(reel);
-                      }}
-                      className="p-2 rounded-full bg-[#66fcf1] text-[#05070b] shadow-[0_0_15px_#66fcf1]"
-                      title="Open 4K Breakdown Reel"
-                    >
-                      <Play className="w-3.5 h-3.5 fill-current ml-0.5" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Card Content Info */}
-                <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                  <div>
-                    <div className="flex items-center justify-between text-[11px] font-mono text-[#87949c] mb-1">
-                      <span>{reel.tag}</span>
-                      <span className="text-[#66fcf1] font-bold">⏱ {reel.turnaroundTime}</span>
-                    </div>
-                    <h3 className="font-heading font-black text-base text-white tracking-wide group-hover:text-[#66fcf1] transition-colors line-clamp-2">
-                      {reel.title}
-                    </h3>
-                    <p className="text-xs text-[#9daab4] mt-2 line-clamp-2 leading-relaxed">
-                      {reel.description}
-                    </p>
-                  </div>
-
-                  {/* Footer metadata */}
-                  <div className="pt-3 border-t border-white/5 flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      {reel.software.slice(0, 2).map((sw, idx) => (
-                        <span
-                          key={idx}
-                          className="px-2 py-0.5 rounded bg-white/5 text-[10px] font-mono text-[#87949c]"
-                        >
-                          {sw}
-                        </span>
-                      ))}
-                    </div>
-
-                    <button
-                      onClick={() => setSelectedReelModal(reel)}
-                      className="text-xs font-mono font-bold text-[#66fcf1] hover:underline flex items-center gap-1"
-                    >
-                      <span>BREAKDOWN</span>
-                      <ArrowUpRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+        {/* 4 Clean VFX Breakdown Image Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {allBreakdowns.slice(0, 4).map((item) => (
+            <BreakdownImageCard
+              key={item.id}
+              item={item}
+              onOpenModal={() => setSelectedBreakdownModal(item)}
+            />
+          ))}
         </div>
       </section>
 
@@ -356,12 +205,130 @@ export const PortfolioPage: React.FC<PortfolioPageProps> = ({ onOpenTestShotModa
         </div>
       </section>
 
-      {/* Lightbox / Cinema Breakdown Modal */}
+      {/* Cinema Video Modal (for 3D Showreel Wall) */}
       <ReelCinemaModal
         reel={selectedReelModal}
         onClose={() => setSelectedReelModal(null)}
         onOpenTestShotModal={onOpenTestShotModal}
       />
+
+      {/* High-Resolution VFX Breakdown Image Inspection Modal */}
+      <VfxBreakdownModal
+        breakdown={selectedBreakdownModal}
+        onClose={() => setSelectedBreakdownModal(null)}
+        onOpenTestShotModal={onOpenTestShotModal}
+      />
+    </div>
+  );
+};
+
+interface BreakdownImageCardProps {
+  item: VfxBreakdownItem;
+  onOpenModal: () => void;
+}
+
+const BreakdownImageCard: React.FC<BreakdownImageCardProps> = ({ item, onOpenModal }) => {
+  const [sliderPos, setSliderPos] = useState<number>(50);
+
+  const handleSliderMove = (e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
+    const pct = Math.round((x / rect.width) * 100);
+    setSliderPos(pct);
+  };
+
+  return (
+    <div className="group relative rounded-2xl bg-[#08111a] border border-white/10 hover:border-[#66fcf1]/60 transition-all duration-500 overflow-hidden shadow-2xl flex flex-col">
+      {/* Visual Area: Interactive A/B Wipe Comparison */}
+      <div className="relative aspect-video w-full bg-black select-none overflow-hidden">
+        <div
+          className="relative w-full h-full cursor-ew-resize select-none overflow-hidden"
+          onMouseMove={handleSliderMove}
+          onTouchMove={handleSliderMove}
+          onClick={onOpenModal}
+        >
+          {/* Before: Raw Ingest Plate */}
+          <img
+            src={item.beforeImage || undefined}
+            alt={`${item.title} Raw Plate`}
+            className="absolute inset-0 w-full h-full object-cover select-none"
+          />
+
+          {/* After: Clean Plate / Matte with Clip */}
+          {item.afterImage && (
+            <div
+              className="absolute inset-0 overflow-hidden pointer-events-none select-none"
+              style={{
+                clipPath: `polygon(0 0, ${sliderPos}% 0, ${sliderPos}% 100%, 0 100%)`,
+              }}
+            >
+              <img
+                src={item.afterImage || undefined}
+                alt={`${item.title} Processed Comp`}
+                className="absolute inset-0 w-full h-full object-cover select-none filter contrast-115"
+              />
+              <div className="absolute inset-0 bg-[#66fcf1]/15 mix-blend-color-dodge" />
+            </div>
+          )}
+
+          {/* Wipe Slider Line */}
+          <div
+            className="absolute top-0 bottom-0 w-[2px] bg-[#66fcf1] shadow-[0_0_12px_#66fcf1] pointer-events-none"
+            style={{ left: `${sliderPos}%` }}
+          >
+            <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-[#66fcf1] text-[#05070b] flex items-center justify-center font-bold text-[10px] shadow-md">
+              ↔
+            </div>
+          </div>
+
+          {/* Position Indicator Badge */}
+          <div className="absolute bottom-3 left-3 pointer-events-none">
+            <span className="px-2 py-0.5 rounded bg-black/80 backdrop-blur-md border border-[#66fcf1]/40 text-[9px] font-mono text-[#66fcf1] uppercase">
+              {sliderPos < 50 ? 'RAW PLATE' : 'CLEAN MATTE'} [{sliderPos}%]
+            </span>
+          </div>
+        </div>
+
+        {/* Top Badges */}
+        <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-20 pointer-events-none">
+          <span className="px-2.5 py-0.5 rounded-full bg-black/80 backdrop-blur-md border border-[#66fcf1]/40 text-[10px] font-['Poppins',sans-serif] font-semibold text-[#66fcf1] uppercase tracking-wider">
+            {item.category}
+          </span>
+          {item.tag && (
+            <span className="px-2 py-0.5 rounded-full bg-black/80 backdrop-blur-md border border-white/20 text-[9px] font-['Poppins',sans-serif] text-slate-200">
+              {item.tag}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Card Content Info */}
+      <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
+        <div>
+          <h3 className="font-['Poppins',sans-serif] font-bold text-base text-white tracking-wide group-hover:text-[#66fcf1] transition-colors line-clamp-2">
+            {item.title}
+          </h3>
+          <p className="font-['Poppins',sans-serif] text-xs text-slate-300 mt-2 line-clamp-2 leading-relaxed">
+            {item.description}
+          </p>
+        </div>
+
+        {/* Footer Action */}
+        <div className="pt-3 border-t border-white/10 flex items-center justify-between">
+          <span className="text-[11px] font-['Poppins',sans-serif] text-[#66fcf1]/80 font-medium">
+            A/B Interactive Plate
+          </span>
+
+          <button
+            onClick={onOpenModal}
+            className="text-xs font-['Poppins',sans-serif] font-semibold text-[#66fcf1] hover:text-white flex items-center gap-1 transition-colors"
+          >
+            <span>Inspect Matte</span>
+            <ArrowUpRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

@@ -13,7 +13,8 @@ import {
   Check, 
   Layers, 
   Film,
-  Network
+  Network,
+  Lock
 } from 'lucide-react';
 
 export const AdminHUD: React.FC = () => {
@@ -29,7 +30,8 @@ export const AdminHUD: React.FC = () => {
     exportConfigJson, 
     importConfigJson,
     adminToast,
-    config
+    config,
+    logoutAdmin
   } = useSiteConfig();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -156,6 +158,16 @@ export const AdminHUD: React.FC = () => {
           </button>
 
           <div className="w-[1px] h-5 bg-white/15 mx-1" />
+
+          {/* Lock Session */}
+          <button
+            onClick={logoutAdmin}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 font-medium transition-colors"
+            title="Lock Admin Session (Require OTP to Re-enter)"
+          >
+            <Lock className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Lock Session</span>
+          </button>
 
           {/* Close HUD */}
           <button

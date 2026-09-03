@@ -1,6 +1,8 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { SiteConfig, PartnerStudio, WorkShot, ServiceItem, FAQItem, ProductionLiveShot } from '../types';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import { SiteConfig, PartnerStudio, WorkShot, ServiceItem, FAQItem, ProductionLiveShot, PortfolioShowreelItem } from '../types';
 import { DEFAULT_PARTNERS, WORK_SHOTS, SERVICES_LIST, INITIAL_LIVE_SHOTS, FAQS } from '../data/mockData';
+import { PORTFOLIO_REELS, COLLAGE_TILES, VFX_BREAKDOWNS } from '../data/portfolioData';
+import { MOVIE_POSTERS_DATA } from '../data/moviePostersData';
 
 export const DEFAULT_SITE_CONFIG: SiteConfig = {
   // Branding & Header
@@ -14,6 +16,8 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
   accentColor: '#66fcf1',
   supportEmail: 'tom@blackfx.net',
   connectPortalUrl: 'https://app.rotopaintwala.com/',
+  whatsappNumber: '9372823352',
+  whatsappUrl: 'https://wa.me/919372823352?text=Hello%20Roto%20Paint%20Wala%20Team%2C%20I%20would%20like%20to%20discuss%20a%20VFX%20Project',
 
   // Hero Section
   heroEyebrow: 'Rotoscopy · Paint · VFX Support',
@@ -172,6 +176,13 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
       enabled: true,
     },
     {
+      id: 'whatsapp',
+      platform: 'whatsapp',
+      label: 'WhatsApp Direct Dispatch',
+      url: 'https://wa.me/919372823352?text=Hello%20Roto%20Paint%20Wala%20Team%2C%20I%20would%20like%20to%20discuss%20a%20VFX%20Project',
+      enabled: true,
+    },
+    {
       id: 'google',
       platform: 'google',
       label: 'Google Search / Business',
@@ -179,9 +190,32 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
       enabled: true,
     },
   ],
+  portfolioReels: PORTFOLIO_REELS,
+  collaborationTagline: 'COLLABORATION SHOWCASE',
+  collaborationSubDescription: 'A shared celebration of our creative partnerships.',
+  vfxBreakdowns: VFX_BREAKDOWNS,
+  moviePosters: MOVIE_POSTERS_DATA,
+  homePostersHeadline: 'THE ART BEHIND THE BLOCKBUSTERS',
+  homePostersHeadlineLine1: 'THE ART BEHIND',
+  homePostersHeadlineLine2: 'THE',
+  homePostersHeadlineLine3: 'BLOCKBUSTERS',
+  homePostersSubheadline: 'Sub-Pixel Rotoscopy & Digital Paint',
+  homePostersDescription: 'These floating posters showcase the high-precision visual effects built by our collaborative team.',
+  homePostersCtaText: 'REQUEST PILOT SHOT',
+  collageTiles: COLLAGE_TILES,
+  rpwFeatureImages: {
+    'multi-project-matrix': '/uploads/img_rpwFeatureImages_multi-project-matrix_1788364494170.png',
+    'shots-live-progress': '/uploads/img_rpwFeatureImages_shots-live-progress_1788364494174.png',
+    'chat-file-attachments-1gb': '/uploads/img_rpwFeatureImages_chat-file-attachments-1gb_1788364494178.png',
+  },
+  rpwFeatureOverrides: {},
+  rpwShowcaseAutoRotate: true,
+  rpwShowcaseRotateInterval: 3.5,
+  rpwShowcaseSpeed: 3.5,
 };
 
-const STORAGE_KEY = 'rpw_site_cms_config_v2';
+const STORAGE_KEY = 'rpw_site_cms_config_v4';
+const AUTH_STORAGE_KEY = 'rpw_admin_auth_session_v1';
 
 interface SiteConfigContextType {
   config: SiteConfig;
@@ -189,6 +223,8 @@ interface SiteConfigContextType {
   resetToDefaults: () => void;
   exportConfigJson: () => void;
   importConfigJson: (jsonString: string) => boolean;
+  saveConfigToServer: () => Promise<boolean>;
+  isServerSaving: boolean;
   
   // Editor State
   isEditorOpen: boolean;
@@ -202,6 +238,13 @@ interface SiteConfigContextType {
   activeEditTarget: string | null;
   setActiveEditTarget: (targetId: string | null) => void;
   
+  // Admin OTP Auth State
+  isAdminAuthenticated: boolean;
+  setIsAdminAuthenticated: (auth: boolean) => void;
+  showOtpModal: boolean;
+  setShowOtpModal: (show: boolean) => void;
+  logoutAdmin: () => void;
+
   // Toast helper for admin actions
   notifySaved: () => void;
   adminToast: string | null;
@@ -219,14 +262,100 @@ export const SiteConfigProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         return {
           ...DEFAULT_SITE_CONFIG,
           ...parsed,
-          socialLinks: parsed.socialLinks && parsed.socialLinks.length > 0 ? parsed.socialLinks : DEFAULT_SITE_CONFIG.socialLinks,
+          partners: Array.isArray(parsed.partners) && parsed.partners.length > 0 ? parsed.partners : DEFAULT_SITE_CONFIG.partners,
+          portfolioReels: Array.isArray(parsed.portfolioReels) && parsed.portfolioReels.length > 0 ? parsed.portfolioReels : DEFAULT_SITE_CONFIG.portfolioReels,
+          collageTiles: Array.isArray(parsed.collageTiles) && parsed.collageTiles.length > 0 ? parsed.collageTiles : DEFAULT_SITE_CONFIG.collageTiles,
+          socialLinks: Array.isArray(parsed.socialLinks) && parsed.socialLinks.length > 0 ? parsed.socialLinks : DEFAULT_SITE_CONFIG.socialLinks,
+          rpwFeatureImages: parsed.rpwFeatureImages || {},
+          rpwFeatureOverrides: parsed.rpwFeatureOverrides || {},
         };
       }
     } catch (e) {
-      console.warn('Failed to load stored CMS config, using defaults:', e);
+      console.warn('Failed to load stored CMS config from localStorage, using defaults:', e);
     }
     return DEFAULT_SITE_CONFIG;
   });
+
+  const [isServerSaving, setIsServerSaving] = useState<boolean>(false);
+  const isServerConfigLoaded = useRef<boolean>(false);
+  const hasUserModified = useRef<boolean>(false);
+
+  // Fetch persistent configuration from server on mount
+  useEffect(() => {
+    let isMounted = true;
+    const fetchServerConfig = async () => {
+      try {
+        const res = await fetch('/api/config');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.config && isMounted) {
+            isServerConfigLoaded.current = true;
+            setConfig((prev) => {
+              const merged = {
+                ...DEFAULT_SITE_CONFIG,
+                ...prev,
+                ...data.config,
+                partners: Array.isArray(data.config.partners) && data.config.partners.length > 0 ? data.config.partners : (prev.partners || DEFAULT_SITE_CONFIG.partners),
+                portfolioReels: Array.isArray(data.config.portfolioReels) && data.config.portfolioReels.length > 0 ? data.config.portfolioReels : (prev.portfolioReels || DEFAULT_SITE_CONFIG.portfolioReels),
+                moviePosters: Array.isArray(data.config.moviePosters) && data.config.moviePosters.length > 0 ? data.config.moviePosters : (prev.moviePosters || DEFAULT_SITE_CONFIG.moviePosters),
+                collageTiles: Array.isArray(data.config.collageTiles) && data.config.collageTiles.length > 0 ? data.config.collageTiles : (prev.collageTiles || DEFAULT_SITE_CONFIG.collageTiles),
+                socialLinks: Array.isArray(data.config.socialLinks) && data.config.socialLinks.length > 0 ? data.config.socialLinks : (prev.socialLinks || DEFAULT_SITE_CONFIG.socialLinks),
+                rpwFeatureImages: data.config.rpwFeatureImages || prev.rpwFeatureImages || {},
+                rpwFeatureOverrides: data.config.rpwFeatureOverrides || prev.rpwFeatureOverrides || {},
+              };
+              try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+              } catch (err) {
+                console.warn('[CMS-CLIENT] LocalStorage cache quota warning:', err);
+              }
+              return merged;
+            });
+          } else {
+            isServerConfigLoaded.current = true;
+          }
+        } else {
+          isServerConfigLoaded.current = true;
+        }
+      } catch (err) {
+        isServerConfigLoaded.current = true;
+        console.warn('[CMS-CLIENT] Note: Server config fetch fallback to local storage:', err);
+      }
+    };
+
+    fetchServerConfig();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const [isAdminAuthenticated, setIsAdminAuthenticatedState] = useState<boolean>(() => {
+    try {
+      return sessionStorage.getItem(AUTH_STORAGE_KEY) === 'true';
+    } catch {
+      return false;
+    }
+  });
+  const [showOtpModal, setShowOtpModal] = useState<boolean>(false);
+
+  const setIsAdminAuthenticated = useCallback((auth: boolean) => {
+    setIsAdminAuthenticatedState(auth);
+    try {
+      if (auth) {
+        sessionStorage.setItem(AUTH_STORAGE_KEY, 'true');
+      } else {
+        sessionStorage.removeItem(AUTH_STORAGE_KEY);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+
+  const logoutAdmin = useCallback(() => {
+    setIsAdminAuthenticated(false);
+    setIsEditorOpen(false);
+    setAdminToast('🔒 Admin session locked.');
+    setTimeout(() => setAdminToast(null), 3000);
+  }, [setIsAdminAuthenticated]);
 
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editorMode, setEditorMode] = useState<'in-place' | 'dashboard'>('in-place');
@@ -234,14 +363,38 @@ export const SiteConfigProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [activeEditTarget, setActiveEditTarget] = useState<string | null>(null);
   const [adminToast, setAdminToast] = useState<string | null>(null);
 
-  // Automatically persist on change
+  // Synchronous ref to prevent stale closures when rapidly updating settings
+  const configRef = useRef<SiteConfig>(config);
+  useEffect(() => {
+    configRef.current = config;
+  }, [config]);
+
+  // Automatically persist locally and auto-sync to server ONLY when user made edits
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
     } catch (e) {
-      console.error('Failed to save to localStorage:', e);
+      console.warn('[CMS-CLIENT] LocalStorage quota limit reached, skipping browser cache:', e);
     }
-  }, [config]);
+
+    // CRITICAL: NEVER overwrite server config unless an authenticated admin or editor explicitly modified content
+    // and initial server config has finished loading!
+    if (!hasUserModified.current || !isServerConfigLoaded.current || (!isAdminAuthenticated && !isEditorOpen)) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      fetch('/api/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ config: configRef.current }),
+      }).catch((err) => {
+        console.warn('[CMS-CLIENT] Auto-save to server warning:', err);
+      });
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, [config, isAdminAuthenticated]);
 
   // Sync dynamic partner count to stats
   useEffect(() => {
@@ -257,18 +410,57 @@ export const SiteConfigProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   }, [config.partners.length]);
 
   const updateConfig = useCallback((updater: Partial<SiteConfig> | ((prev: SiteConfig) => SiteConfig)) => {
+    hasUserModified.current = true;
     setConfig((prev) => {
-      if (typeof updater === 'function') {
-        return updater(prev);
-      }
-      return { ...prev, ...updater };
+      const next = typeof updater === 'function' ? updater(prev) : { ...prev, ...updater };
+      configRef.current = next;
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      } catch (e) {}
+      return next;
     });
   }, []);
 
-  const resetToDefaults = useCallback(() => {
+  const saveConfigToServer = useCallback(async (customConfig?: SiteConfig): Promise<boolean> => {
+    setIsServerSaving(true);
+    hasUserModified.current = true;
+    const toSave = customConfig || configRef.current;
+    try {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+      } catch {}
+      const res = await fetch('/api/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ config: toSave }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.config) {
+          setConfig(json.config);
+          configRef.current = json.config;
+        }
+        setAdminToast('🚀 Published live across all visitor & shared pages!');
+        setTimeout(() => setAdminToast(null), 4000);
+        setIsServerSaving(false);
+        return true;
+      }
+    } catch (e) {
+      console.error('Failed to save to server:', e);
+    }
+    setIsServerSaving(false);
+    setAdminToast('💾 Saved locally in browser session.');
+    setTimeout(() => setAdminToast(null), 3000);
+    return false;
+  }, []);
+
+  const resetToDefaults = useCallback(async () => {
     if (window.confirm('Reset all website contents, images, logos, and videos back to original factory defaults?')) {
       setConfig(DEFAULT_SITE_CONFIG);
       localStorage.removeItem(STORAGE_KEY);
+      try {
+        await fetch('/api/config/reset', { method: 'POST' });
+      } catch {}
       setAdminToast('✨ Site content reset to original defaults');
       setTimeout(() => setAdminToast(null), 4000);
     }
@@ -290,8 +482,15 @@ export const SiteConfigProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     try {
       const parsed = JSON.parse(jsonString);
       if (parsed && typeof parsed === 'object') {
-        setConfig({ ...DEFAULT_SITE_CONFIG, ...parsed });
-        setAdminToast('✅ Config successfully imported and applied!');
+        const merged = { ...DEFAULT_SITE_CONFIG, ...parsed };
+        setConfig(merged);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+        fetch('/api/config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ config: merged }),
+        }).catch(() => {});
+        setAdminToast('✅ Config successfully imported and published live!');
         setTimeout(() => setAdminToast(null), 4000);
         return true;
       }
@@ -302,8 +501,11 @@ export const SiteConfigProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   }, []);
 
   const notifySaved = useCallback(() => {
-    setAdminToast('💾 Changes saved to live website');
-    setTimeout(() => setAdminToast(null), 3500);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(configRef.current));
+    } catch {}
+    setAdminToast('💾 Setting updated');
+    setTimeout(() => setAdminToast(null), 2000);
   }, []);
 
   return (
@@ -314,6 +516,8 @@ export const SiteConfigProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         resetToDefaults,
         exportConfigJson,
         importConfigJson,
+        saveConfigToServer,
+        isServerSaving,
         isEditorOpen,
         setIsEditorOpen,
         editorMode,
@@ -322,6 +526,11 @@ export const SiteConfigProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         setActiveTab,
         activeEditTarget,
         setActiveEditTarget,
+        isAdminAuthenticated,
+        setIsAdminAuthenticated,
+        showOtpModal,
+        setShowOtpModal,
+        logoutAdmin,
         notifySaved,
         adminToast,
         setAdminToast,

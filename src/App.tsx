@@ -5,7 +5,6 @@ import { HorizontalPosterWall } from './components/home/HorizontalPosterWall';
 import { Ticker } from './components/Ticker';
 import { ServicesSection } from './components/ServicesSection';
 import { PartnerUniverse } from './components/PartnerUniverse';
-import { WhyRPW } from './components/WhyRPW';
 import { RPWConnectPreview } from './components/RPWConnectPreview';
 import { StatsCounter } from './components/StatsCounter';
 import { FAQSection } from './components/FAQSection';
@@ -16,6 +15,7 @@ import { EmailToast } from './components/EmailToast';
 import { SiteConfigProvider, useSiteConfig } from './context/SiteConfigContext';
 import { AdminHUD } from './components/admin/AdminHUD';
 import { AdminDashboard } from './components/admin/AdminDashboard';
+import { AdminOtpAuthModal } from './components/admin/AdminOtpAuthModal';
 import { InPlaceEditorPopover } from './components/admin/InPlaceEditorPopover';
 import { PortfolioPage } from './pages/PortfolioPage';
 import { AboutUsPage } from './pages/AboutUsPage';
@@ -113,6 +113,9 @@ function MainAppContent() {
       {/* Full Backend Studio CMS Dashboard Modal (When in dashboard mode) */}
       <AdminDashboard />
 
+      {/* Admin Email OTP Security Checkpoint */}
+      <AdminOtpAuthModal />
+
       {/* In-Place Live Inspector Popover (When an element is clicked to edit live on page) */}
       {isEditorOpen && activeEditTarget && (
         <InPlaceEditorPopover onClose={() => setActiveEditTarget(null)} />
@@ -132,19 +135,18 @@ function MainAppContent() {
         onOpenTestShotModal={() => handleOpenTestShotModal()}
       />
 
-      {/* Conditional Page Rendering with Smooth Transitions */}
-      {activePage === 'portfolio' && (
-        <PortfolioPage onOpenTestShotModal={handleOpenTestShotModal} />
-      )}
-
-      {activePage === 'about' && (
-        <AboutUsPage
-          onOpenTestShotModal={() => handleOpenTestShotModal()}
-          onNavigateToPortfolio={() => handleNavigate('portfolio')}
-        />
-      )}
-
-      {activePage === 'home' && (
+      {/* 
+        Instant Preloaded & Cached Architecture:
+        Auto-loads PortfolioPage and AboutUsPage simultaneously in the background 
+        while user is on the Home page. All pages remain mounted in DOM so browser 
+        caches videos, posters, breakdown plates, and state. Switching pages is 0ms
+        instant without tearing down or refreshing again and again!
+      */}
+      <div 
+        id="page-home" 
+        className={activePage === 'home' ? 'block' : 'hidden'}
+        aria-hidden={activePage !== 'home'}
+      >
         <main>
           {/* Hero Section */}
           <Hero
@@ -171,9 +173,6 @@ function MainAppContent() {
           {/* Services List */}
           <ServicesSection onOpenTestShotModal={handleOpenTestShotModal} />
 
-          {/* Why RPW */}
-          <WhyRPW />
-
           {/* RPW Connect Portal Live Telemetry */}
           <RPWConnectPreview onOpenTestShotModal={() => handleOpenTestShotModal()} />
 
@@ -186,7 +185,29 @@ function MainAppContent() {
           {/* Final Call to Action */}
           <FinalCTA onOpenTestShotModal={() => handleOpenTestShotModal()} />
         </main>
-      )}
+      </div>
+
+      <div 
+        id="page-portfolio" 
+        className={activePage === 'portfolio' ? 'block' : 'hidden'}
+        aria-hidden={activePage !== 'portfolio'}
+      >
+        <PortfolioPage 
+          onOpenTestShotModal={handleOpenTestShotModal} 
+          isActive={activePage === 'portfolio'}
+        />
+      </div>
+
+      <div 
+        id="page-about" 
+        className={activePage === 'about' ? 'block' : 'hidden'}
+        aria-hidden={activePage !== 'about'}
+      >
+        <AboutUsPage
+          onOpenTestShotModal={() => handleOpenTestShotModal()}
+          onNavigateToPortfolio={() => handleNavigate('portfolio')}
+        />
+      </div>
 
       {/* Footer across all pages */}
       <Footer onNavigate={handleNavigate} />

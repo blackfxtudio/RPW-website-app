@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MOVIE_POSTERS_DATA, MoviePosterItem } from '../../data/moviePostersData';
-import { Zap, Play, Pause } from 'lucide-react';
+import { Zap, Play, Pause, Edit3, Sparkles } from 'lucide-react';
 import { useSiteConfig } from '../../context/SiteConfigContext';
 
 interface HorizontalPosterWallProps {
@@ -11,22 +11,37 @@ interface HorizontalPosterWallProps {
 export const HorizontalPosterWall: React.FC<HorizontalPosterWallProps> = ({
   onOpenTestShotModal,
 }) => {
-  const { config } = useSiteConfig();
+  const { config, isEditorOpen, setEditorMode, setActiveTab } = useSiteConfig();
   const [isPlaying, setIsPlaying] = useState(true);
   const [speedMultiplier, setSpeedMultiplier] = useState(1);
-  const [selectedPoster, setSelectedPoster] = useState<MoviePosterItem | null>(null);
 
-  // Divide posters into exactly 2 rows
-  const allPosters = MOVIE_POSTERS_DATA;
-  const rawRow1 = allPosters.slice(0, 8);
-  const rawRow2 = allPosters.slice(8, 16);
+  // Divide posters dynamically from live site config or default data into 2 rows
+  const allPosters = config.moviePosters && config.moviePosters.length > 0 ? config.moviePosters : MOVIE_POSTERS_DATA;
+  const half = Math.ceil(allPosters.length / 2);
+  const rawRow1 = allPosters.slice(0, half);
+  const rawRow2 = allPosters.slice(half);
 
   // Duplicate for seamless infinite marquee scrolling
   const row1 = [...rawRow1, ...rawRow1, ...rawRow1];
   const row2 = [...rawRow2, ...rawRow2, ...rawRow2];
 
   return (
-    <section id="work" className="w-full relative z-10 bg-[#03060a] overflow-hidden py-10 sm:py-16">
+    <section id="work" className="w-full relative z-10 bg-[#03060a] overflow-hidden py-10 sm:py-16 group/wall">
+      {/* In-Place edit button when Admin mode is on */}
+      {isEditorOpen && (
+        <div className="absolute top-4 right-6 z-40">
+          <button
+            onClick={() => {
+              setActiveTab('home-posters');
+              setEditorMode('dashboard');
+            }}
+            className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#00df81] text-[#05070b] text-xs font-black shadow-[0_0_20px_rgba(0,223,129,0.5)] hover:scale-105 transition-all"
+          >
+            <Edit3 className="w-3.5 h-3.5" />
+            <span>Edit Home Movie Posters Wall</span>
+          </button>
+        </div>
+      )}
       {/* Background ambient lighting */}
       <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[700px] h-[500px] rounded-full bg-[#00df81]/10 blur-[180px] pointer-events-none" />
       <div className="absolute top-1/2 right-10 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-[#66fcf1]/10 blur-[160px] pointer-events-none" />
@@ -66,7 +81,6 @@ export const HorizontalPosterWall: React.FC<HorizontalPosterWallProps> = ({
                   <Poster9x16Card
                     key={`r1-${poster.id}-${idx}`}
                     poster={poster}
-                    onClick={() => setSelectedPoster(poster)}
                   />
                 ))}
               </div>
@@ -85,7 +99,6 @@ export const HorizontalPosterWall: React.FC<HorizontalPosterWallProps> = ({
                   <Poster9x16Card
                     key={`r2-${poster.id}-${idx}`}
                     poster={poster}
-                    onClick={() => setSelectedPoster(poster)}
                   />
                 ))}
               </div>
@@ -94,20 +107,45 @@ export const HorizontalPosterWall: React.FC<HorizontalPosterWallProps> = ({
         </div>
 
         {/* Right Floating Minimal Callout (Clean, Integrated with Backing Shadow) */}
-        <div className="absolute inset-y-0 right-0 w-full lg:w-[45%] bg-gradient-to-l from-[#03060a] via-[#03060a]/90 to-transparent flex items-center justify-end p-6 sm:p-12 md:p-16 z-30 pointer-events-none">
-          <div className="max-w-md text-right space-y-3 sm:space-y-4 pointer-events-auto backdrop-blur-sm p-5 sm:p-7 rounded-3xl bg-black/50 border border-[#00df81]/20 shadow-[0_0_60px_rgba(0,0,0,0.9)]">
-            <h3 className="font-heading text-3xl sm:text-4xl md:text-5xl font-black text-white leading-tight tracking-tight uppercase">
-              THE ULTIMATE <br />
-              <span className="text-white">WAY</span> <br />
-              <span className="text-white">TO DELIVER VFX</span>
+        <div className="absolute inset-y-0 right-0 w-full lg:w-[48%] bg-gradient-to-l from-[#03060a] via-[#03060a]/90 to-transparent flex items-center justify-end p-6 sm:p-12 md:p-16 z-30 pointer-events-none">
+          <div className="max-w-lg text-right space-y-3 sm:space-y-4 pointer-events-auto backdrop-blur-md p-6 sm:p-8 rounded-3xl bg-black/60 border border-[#00df81]/25 shadow-[0_0_60px_rgba(0,0,0,0.95)] relative group/card">
+            {isEditorOpen && (
+              <button
+                onClick={() => {
+                  setActiveTab('home-posters');
+                  setEditorMode('dashboard');
+                }}
+                className="absolute top-3 left-3 p-1.5 rounded-lg bg-[#00df81]/20 hover:bg-[#00df81] text-[#00df81] hover:text-[#05070b] transition-all text-xs flex items-center gap-1 font-mono font-bold"
+                title="Edit Card Content in Dashboard"
+              >
+                <Edit3 className="w-3.5 h-3.5" />
+                <span className="text-[10px]">EDIT CARD</span>
+              </button>
+            )}
+
+            {/* 3-Line Dynamic Stacked Headline */}
+            <h3 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white leading-tight tracking-tight uppercase drop-shadow-lg flex flex-col items-end">
+              {config.homePostersHeadlineLine1 || config.homePostersHeadlineLine2 || config.homePostersHeadlineLine3 ? (
+                <>
+                  {config.homePostersHeadlineLine1 && <span>{config.homePostersHeadlineLine1}</span>}
+                  {config.homePostersHeadlineLine2 && <span>{config.homePostersHeadlineLine2}</span>}
+                  {config.homePostersHeadlineLine3 && <span>{config.homePostersHeadlineLine3}</span>}
+                </>
+              ) : (
+                (config.homePostersHeadline || 'THE ART BEHIND THE BLOCKBUSTERS')
+                  .split('\n')
+                  .map((line, idx) => (
+                    <span key={idx}>{line}</span>
+                  ))
+              )}
             </h3>
 
-            <div className="space-y-1">
-              <p className="text-[#00df81] font-heading font-bold italic text-base sm:text-xl tracking-tight">
-                Sub-Pixel Rotoscopy & Digital Paint
+            <div className="space-y-1.5">
+              <p className="text-[#00df81] font-heading font-bold italic text-base sm:text-lg md:text-xl tracking-tight">
+                {config.homePostersSubheadline || 'Sub-Pixel Rotoscopy & Digital Paint'}
               </p>
-              <p className="text-white/80 font-heading font-semibold italic text-xs sm:text-sm tracking-wide">
-                + Overnight Studio Dispatch at Zero Turnaround Friction
+              <p className="text-white/80 text-xs sm:text-sm leading-relaxed font-sans font-normal">
+                {config.homePostersDescription || 'These floating posters showcase the high-precision visual effects built by our collaborative team.'}
               </p>
             </div>
 
@@ -122,114 +160,44 @@ export const HorizontalPosterWall: React.FC<HorizontalPosterWallProps> = ({
 
               <button
                 onClick={() => onOpenTestShotModal()}
-                className="px-7 py-3.5 rounded-full bg-[#00df81] hover:bg-[#00c974] text-[#05070b] font-heading font-black text-xs sm:text-sm uppercase tracking-wider shadow-[0_0_35px_rgba(0,223,129,0.6)] hover:scale-105 transition-all flex items-center justify-center gap-2"
+                className="px-6 sm:px-7 py-3 sm:py-3.5 rounded-full bg-[#00df81] hover:bg-[#00c974] text-[#05070b] font-heading font-black text-xs sm:text-sm uppercase tracking-wider shadow-[0_0_35px_rgba(0,223,129,0.6)] hover:scale-105 transition-all flex items-center justify-center gap-2"
               >
                 <Zap className="w-4 h-4 fill-current" />
-                <span>REQUEST PILOT SHOT</span>
+                <span>{config.homePostersCtaText || 'REQUEST PILOT SHOT'}</span>
               </button>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Poster Detail Modal */}
-      {selectedPoster && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
-          <div className="relative w-full max-w-2xl rounded-3xl bg-[#08111a] border border-[#00df81]/50 p-6 sm:p-8 shadow-[0_0_90px_rgba(0,0,0,0.95)] space-y-6">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <span className="text-xs font-mono text-[#87949c]">{selectedPoster.year} • {selectedPoster.studio}</span>
-              </div>
-              <button
-                onClick={() => setSelectedPoster(null)}
-                className="w-8 h-8 rounded-full bg-white/10 text-white hover:bg-white/20 flex items-center justify-center font-mono text-sm"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 items-center">
-              <div className="relative aspect-[9/16] rounded-2xl overflow-hidden border-2 border-[#00df81]/40 shadow-2xl bg-black">
-                <img
-                  src={selectedPoster.posterUrl}
-                  alt={selectedPoster.title}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-
-              <div className="sm:col-span-2 space-y-4">
-                <div>
-                  <h3 className="font-heading text-2xl font-bold text-white">
-                    {selectedPoster.title}
-                  </h3>
-                  {selectedPoster.highlight && (
-                    <p className="text-xs font-mono text-[#00df81] font-bold mt-1">
-                      ★ {selectedPoster.highlight}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <span className="text-[11px] font-mono text-[#87949c] uppercase block">
-                    Delivered VFX Prep Services:
-                  </span>
-                  <div className="flex flex-wrap gap-1.5">
-                    {selectedPoster.vfxWork.map((work, idx) => (
-                      <span
-                        key={idx}
-                        className="px-2.5 py-1 rounded-lg bg-[#00df81]/10 text-[#00df81] border border-[#00df81]/30 text-xs font-mono"
-                      >
-                        {work}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                <p className="text-xs font-mono text-[#9daab4] leading-relaxed">
-                  Delivered with sub-pixel alpha splines, organic sensor grain matching, and multi-pass ACEScg clean plate projections.
-                </p>
-
-                <div className="pt-2">
-                  <button
-                    onClick={() => {
-                      setSelectedPoster(null);
-                      onOpenTestShotModal(selectedPoster.title);
-                    }}
-                    className="w-full px-5 py-3 rounded-xl bg-[#00df81] hover:bg-[#00c974] text-[#05070b] font-heading font-bold text-xs uppercase tracking-wider hover:shadow-[0_0_25px_#00df81] transition-all flex items-center justify-center gap-2"
-                  >
-                    <Zap className="w-4 h-4 fill-current" />
-                    <span>REQUEST PILOT SHOT FOR THIS PROJECT</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </section>
   );
 };
 
 interface Poster9x16CardProps {
   poster: MoviePosterItem;
-  onClick: () => void;
 }
 
-const Poster9x16Card: React.FC<Poster9x16CardProps> = ({ poster, onClick }) => {
+const Poster9x16Card: React.FC<Poster9x16CardProps> = ({ poster }) => {
   return (
     <div
-      onClick={onClick}
-      className="group relative w-[140px] sm:w-[170px] md:w-[200px] aspect-[9/16] rounded-2xl overflow-hidden bg-[#08111a] border-2 border-[#00df81]/40 hover:border-[#00df81] transition-all duration-300 shadow-[0_6px_25px_rgba(0,0,0,0.85)] cursor-pointer hover:scale-105 hover:z-30 shrink-0"
+      className="group relative w-[140px] sm:w-[170px] md:w-[200px] aspect-[9/16] overflow-hidden bg-[#08111a] transition-all duration-300 shadow-[0_6px_25px_rgba(0,0,0,0.85)] hover:scale-105 hover:z-30 shrink-0 select-none"
+      style={{
+        outline: '1px solid rgba(0,223,129,0.4)',
+        outlineOffset: '0px'
+      }}
     >
-      {/* 9:16 Movie Poster Image */}
+      {/* 9:16 Movie Poster Image in Original Rectangular Shape */}
       <img
-        src={poster.posterUrl}
+        src={poster.posterUrl || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=800&q=80'}
         alt={poster.title}
+        onError={(e) => {
+          (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=800&q=80';
+        }}
         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
       />
 
-      {/* Neon Border Glow Outline */}
-      <div className="absolute inset-0 border border-[#00df81]/30 rounded-2xl pointer-events-none group-hover:border-[#00df81] group-hover:shadow-[inset_0_0_20px_rgba(0,223,129,0.5)] transition-all" />
+      {/* Outer hover border highlight */}
+      <div className="absolute inset-0 pointer-events-none group-hover:outline group-hover:outline-2 group-hover:outline-[#00df81] group-hover:shadow-[0_0_20px_rgba(0,223,129,0.5)] transition-all" />
 
       {/* Dark Vignette Overlay for Depth */}
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-75 group-hover:opacity-30 transition-opacity" />

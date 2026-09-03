@@ -12,13 +12,11 @@ import {
   UploadCloud,
   FileCheck,
   Video,
-  PenTool,
   Radio
 } from 'lucide-react';
 import { useSiteConfig } from '../context/SiteConfigContext';
-import { RPWConnectInteractiveShowcase } from '../components/home/RPWConnectInteractiveShowcase';
-import { RPWConnect3DExplodingPhone } from '../components/home/RPWConnect3DExplodingPhone';
-import { RPWConnectScrollVideoScrubber } from '../components/home/RPWConnectScrollVideoScrubber';
+import { RPW3DFeatureShowcase } from '../components/RPW3DFeatureShowcase';
+import { WhyRPW } from '../components/WhyRPW';
 
 interface AboutUsPageProps {
   onOpenTestShotModal: () => void;
@@ -37,7 +35,7 @@ export const AboutUsPage: React.FC<AboutUsPageProps> = ({
       <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[800px] h-[500px] rounded-full bg-[#00df81]/10 blur-[200px] pointer-events-none" />
       <div className="absolute top-1/3 right-10 w-[500px] h-[500px] rounded-full bg-[#3b82f6]/10 blur-[180px] pointer-events-none" />
 
-      <div className="max-w-6xl mx-auto space-y-20 sm:space-y-28 relative z-10">
+      <div className="max-w-7xl mx-auto space-y-20 sm:space-y-28 relative z-10">
         
         {/* 1. HERO SECTION: WHO WE ARE (Exact User Brief) */}
         <div className="text-center space-y-6 max-w-4xl mx-auto">
@@ -78,6 +76,9 @@ export const AboutUsPage: React.FC<AboutUsPageProps> = ({
             </div>
           </div>
         </div>
+
+        {/* 1.5 INTERACTIVE 3D FEATURE SHOWCASE CAROUSEL (Directly Below Hero Section) */}
+        <RPW3DFeatureShowcase onOpenTestShotModal={onOpenTestShotModal} />
 
         {/* 2. THE STRICT ZERO THIRD-PARTY APPS MANIFESTO */}
         <div className="rounded-3xl bg-gradient-to-br from-[#08111a] via-[#050b12] to-[#08111a] border-2 border-red-500/30 p-6 sm:p-10 shadow-[0_0_80px_rgba(0,0,0,0.9)] space-y-8">
@@ -176,62 +177,10 @@ export const AboutUsPage: React.FC<AboutUsPageProps> = ({
           </div>
         </div>
 
-        {/* 3. APPLE-STYLE PINNED SCROLL VIDEO SCRUBBER (1.5x fast scrub animation through container till video completes) */}
-        <div className="space-y-6 -mx-4 sm:-mx-8 md:-mx-12">
-          <div className="text-center max-w-3xl mx-auto space-y-3 px-4 sm:px-8">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#00df81]/15 border border-[#00df81]/40 text-[#00df81] text-xs font-mono font-bold tracking-widest uppercase">
-              <Radio className="w-3.5 h-3.5 animate-pulse" />
-              <span>APPLE-STYLE SCROLL-DRIVEN APP DEMO</span>
-            </div>
-            <h2 className="font-heading text-3xl sm:text-5xl font-black text-white uppercase tracking-tight">
-              Watch RPW-Connect in Motion
-            </h2>
-            <p className="text-xs sm:text-sm font-mono text-[#9daab4]">
-              Scroll down to scrub smoothly through the live app walkthrough at 1.5x speed inside the mobile interface.
-            </p>
-          </div>
+        {/* 2.5 CORE PRODUCTION PILLARS */}
+        <WhyRPW />
 
-          {/* Pinned Scroll Video Scrubber Component */}
-          <RPWConnectScrollVideoScrubber />
-        </div>
-
-        {/* 4. 3D EXPLODING APP UI SHOWCASE */}
-        <div className="space-y-6 -mx-4 sm:-mx-8 md:-mx-12 pt-12 border-t border-white/10">
-          <div className="text-center max-w-3xl mx-auto space-y-3 px-4 sm:px-8">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#00df81]/15 border border-[#00df81]/40 text-[#00df81] text-xs font-mono font-bold tracking-widest uppercase">
-              <Radio className="w-3.5 h-3.5 animate-pulse" />
-              <span>3D EXPLODING PIPELINE SHOWCASE</span>
-            </div>
-            <h2 className="font-heading text-3xl sm:text-5xl font-black text-white uppercase tracking-tight">
-              Inside RPW-Connect
-            </h2>
-            <p className="text-xs sm:text-sm font-mono text-[#9daab4]">
-              Scroll down to watch the mobile UI explode into floating 3D modules—and collapse into the direct portal.
-            </p>
-          </div>
-
-          {/* Uncontained 3D Exploding Phone Component */}
-          <RPWConnect3DExplodingPhone />
-        </div>
-
-        {/* 4. OPTIONAL DEEP SIMULATOR (Doodle Brush & Watermark Testing) */}
-        <div className="space-y-6 pt-10 border-t border-white/10">
-          <div className="text-center max-w-2xl mx-auto space-y-2">
-            <div className="text-xs font-mono text-[#00df81] uppercase font-bold tracking-wider">
-              INTERACTIVE TOOLKIT SIMULATOR
-            </div>
-            <h3 className="font-heading text-2xl sm:text-3xl font-black text-white uppercase">
-              Try In-App Annotation & Security Live
-            </h3>
-            <p className="text-xs font-mono text-[#87949c]">
-              Test drawing on frames, requesting clean copies, and dynamic IP watermarking.
-            </p>
-          </div>
-
-          <RPWConnectInteractiveShowcase />
-        </div>
-
-        {/* 4. CALL TO ACTION & DIRECT ACCESS */}
+        {/* 3. CALL TO ACTION & DIRECT ACCESS */}
         <div className="p-8 sm:p-12 rounded-3xl bg-gradient-to-r from-[#08111a] via-[#04080e] to-[#08111a] border border-[#00df81]/40 shadow-[0_0_80px_rgba(0,0,0,0.9)] text-center space-y-6">
           <div className="max-w-2xl mx-auto space-y-2">
             <h3 className="font-heading text-2xl sm:text-4xl font-black text-white uppercase">

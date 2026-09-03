@@ -1,48 +1,57 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { COLLAGE_TILES } from '../../data/portfolioData';
-import { Play, Pause, FastForward, Sparkles, Sliders, Eye, Maximize2, Zap, Film, Volume2, VolumeX, Layers, CheckCircle2 } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { PORTFOLIO_REELS } from '../../data/portfolioData';
+import { useSiteConfig } from '../../context/SiteConfigContext';
+import { Play, Pause, Sparkles, Layers, Zap, Maximize2, LayoutGrid } from 'lucide-react';
+import { getYouTubeEmbedUrl, extractYouTubeId, isDirectVideoUrl } from '../../utils/mediaUtils';
+import { PortfolioShowreelItem } from '../../types';
 
 interface CollageReelWallProps {
-  onSelectReel: (tile: typeof COLLAGE_TILES[0]) => void;
+  onSelectReel: (reel: PortfolioShowreelItem) => void;
   onOpenTestShotModal: () => void;
+  isActive?: boolean;
 }
 
-export const CollageReelWall: React.FC<CollageReelWallProps> = ({ onSelectReel, onOpenTestShotModal }) => {
+export const CollageReelWall: React.FC<CollageReelWallProps> = ({ 
+  onSelectReel, 
+  onOpenTestShotModal,
+  isActive = true,
+}) => {
+  const { config } = useSiteConfig();
+
+  // Dynamically build tiles strictly from live portfolioReels (NO fake demo posters)
+  const dynamicReels = useMemo(() => {
+    const reels = config.portfolioReels && config.portfolioReels.length > 0 ? config.portfolioReels : PORTFOLIO_REELS;
+    return reels.map((reel, idx) => ({
+      id: reel.id || `reel-${idx + 1}`,
+      title: reel.title,
+      category: reel.category,
+      image: reel.beforeImage || reel.thumbnail || reel.afterImage || 'https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=800&auto=format&fit=crop',
+      videoUrl: reel.videoUrl || '',
+      badge: reel.tag || reel.category,
+      glowColor: '#66fcf1',
+      reelData: reel,
+    }));
+  }, [config.portfolioReels]);
+
   const [isPlaying, setIsPlaying] = useState(true);
   const [speedMultiplier, setSpeedMultiplier] = useState<number>(1);
-  const [hoveredTile, setHoveredTile] = useState<typeof COLLAGE_TILES[0] | null>(null);
-  const [perspectiveMode, setPerspectiveMode] = useState<'3d-tilt' | 'cinematic-flat'>('3d-tilt');
-  const [activeCategory, setActiveCategory] = useState<string>('all');
+  const [hoveredTileId, setHoveredTileId] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'3d-wall' | 'cinema-grid'>('3d-wall');
 
-  // Create duplicated rows for seamless infinite marquee loop
-  const rawRow1 = COLLAGE_TILES.slice(0, 6);
-  const rawRow2 = COLLAGE_TILES.slice(6, 12);
-  const rawRow3 = [...COLLAGE_TILES.slice(3, 9), ...COLLAGE_TILES.slice(0, 3)];
+  // Use all dynamic reels directly
+  const reelsList = dynamicReels;
+
+  // Create rows for continuous 3D ribbon loop: 2 sets for perfect 50% infinite keyframe marquee
+  const rawRow1 = reelsList.slice(0, Math.ceil(reelsList.length / 2));
+  const rawRow2 = reelsList.slice(Math.ceil(reelsList.length / 2));
+  const safeRow2 = rawRow2.length > 0 ? rawRow2 : rawRow1;
 
   const row1 = [...rawRow1, ...rawRow1];
-  const row2 = [...rawRow2, ...rawRow2];
-  const row3 = [...rawRow3, ...rawRow3];
-
-  const getFilteredRow = (rowItems: typeof COLLAGE_TILES) => {
-    if (activeCategory === 'all') return rowItems;
-    return rowItems.filter(
-      (item) =>
-        item.category.toLowerCase().includes(activeCategory.toLowerCase()) ||
-        item.badge.toLowerCase().includes(activeCategory.toLowerCase())
-    );
-  };
-
-  const categories = [
-    { id: 'all', label: 'All Dynamic Reels' },
-    { id: 'roto', label: 'Roto & Alpha' },
-    { id: 'clean', label: 'Clean Plate & Prep' },
-    { id: 'wire', label: 'Wire Removal' },
-    { id: 'stereo', label: 'Stereo 3D' },
-  ];
+  const row2 = [...safeRow2, ...safeRow2];
 
   return (
     <div className="relative w-full overflow-hidden bg-[#03060a] pt-24 sm:pt-28 pb-16 border-b border-[#66fcf1]/20">
-      {/* Background Neon Lasers and Glow Atmosphere matching user reference image */}
+      {/* Background Neon Lasers and Glow Atmosphere */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#66fcf1]/10 blur-[140px] rounded-full" />
         <div className="absolute bottom-0 left-0 w-full h-[120px] bg-gradient-to-t from-[#03060a] to-transparent z-20" />
@@ -50,270 +59,322 @@ export const CollageReelWall: React.FC<CollageReelWallProps> = ({ onSelectReel, 
         <div className="absolute inset-0 vfx-mesh-pattern opacity-40 z-10" />
       </div>
 
-      {/* Header Overlay & Badge */}
-      <div className="relative z-30 max-w-7xl mx-auto px-4 sm:px-8 md:px-12 text-center mb-8">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#66fcf1]/10 border border-[#66fcf1]/30 text-[#66fcf1] text-xs font-mono font-bold uppercase tracking-widest mb-3 backdrop-blur-md shadow-[0_0_20px_rgba(102,252,241,0.25)]">
-          <Sparkles className="w-3.5 h-3.5 animate-spin" style={{ animationDuration: '4s' }} />
-          <span>Interactive 3D Showreel Collage & Reel Matrix</span>
+      {/* Header: Collaboration Showcase with Beautiful Poppins Styling */}
+      <div className="relative z-30 max-w-5xl mx-auto px-4 sm:px-8 text-center mb-10">
+        {/* Luminous Top Kicker */}
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#66fcf1]/10 border border-[#66fcf1]/30 text-[#66fcf1] text-[11px] font-semibold tracking-[0.24em] uppercase mb-4 shadow-[0_0_25px_rgba(102,252,241,0.22)] backdrop-blur-md">
+          <Sparkles className="w-3.5 h-3.5 text-[#66fcf1] animate-pulse" />
+          <span>CREATIVE PARTNERSHIPS</span>
         </div>
 
-        <h1 className="font-heading text-3xl sm:text-5xl md:text-6xl font-black text-white tracking-tight uppercase">
-          Dynamic Showreel <span className="text-[#66fcf1] drop-shadow-[0_0_25px_rgba(102,252,241,0.5)]">Collage</span> Wall
+        {/* Main Tagline Title in Poppins Font */}
+        <h1 className="font-['Poppins',sans-serif] text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-[0.05em] uppercase text-transparent bg-clip-text bg-gradient-to-b from-white via-[#f0fbff] to-[#a8f5f0] drop-shadow-[0_4px_35px_rgba(102,252,241,0.25)]">
+          {config.collaborationTagline || 'COLLABORATION SHOWCASE'}
         </h1>
-        <p className="max-w-2xl mx-auto text-xs sm:text-sm text-[#9daab4] mt-2 font-mono">
-          Hover any tile to inspect sub-pixel breakdowns. Click to play full 4K cinema master reel with A/B wipe comparison.
+
+        {/* Subtle Decorative Accent Line */}
+        <div className="flex items-center justify-center gap-3 my-4">
+          <span className="w-14 sm:w-20 h-[1px] bg-gradient-to-r from-transparent to-[#66fcf1]/80" />
+          <span className="w-1.5 h-1.5 rounded-full bg-[#66fcf1] shadow-[0_0_12px_#66fcf1]" />
+          <span className="w-14 sm:w-20 h-[1px] bg-gradient-to-l from-transparent to-[#66fcf1]/80" />
+        </div>
+
+        {/* Sub-Description in Poppins Font */}
+        <p className="max-w-xl mx-auto font-['Poppins',sans-serif] text-sm sm:text-base text-slate-300 font-normal leading-relaxed tracking-wide">
+          {config.collaborationSubDescription || 'A shared celebration of our creative partnerships.'}
         </p>
-
-        {/* Categories Bar */}
-        <div className="flex items-center justify-center gap-2 mt-6 flex-wrap">
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setActiveCategory(cat.id)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-mono font-bold tracking-wider transition-all duration-300 ${
-                activeCategory === cat.id
-                  ? 'bg-[#66fcf1] text-[#05070b] shadow-[0_0_15px_#66fcf1]'
-                  : 'bg-white/5 text-[#9daab4] border border-white/10 hover:border-[#66fcf1]/40 hover:text-white'
-              }`}
-            >
-              {cat.label}
-            </button>
-          ))}
-        </div>
       </div>
 
-      {/* 3D Angled Moving Reel Showcase Wall (Inspired by User's Reference Collage) */}
-      <div
-        className={`relative w-full py-4 transition-all duration-700 select-none ${
-          perspectiveMode === '3d-tilt'
-            ? 'perspective-[1200px] scale-[1.03] sm:scale-100 transform-gpu'
-            : 'perspective-none'
-        }`}
-      >
-        <div
-          className={`space-y-4 sm:space-y-6 transition-transform duration-700 ${
-            perspectiveMode === '3d-tilt'
-              ? 'rotate-x-[14deg] -rotate-y-[2deg] rotate-z-[-2deg]'
-              : ''
-          }`}
-          style={{ transformStyle: 'preserve-3d' }}
-        >
-          {/* Row 1: Scrolling Left */}
-          <div className="flex gap-4 sm:gap-6 overflow-hidden w-full relative">
-            <div
-              className="flex gap-4 sm:gap-6 shrink-0"
-              style={{
-                animation: `scrollLeft ${45 / speedMultiplier}s linear infinite`,
-                animationPlayState: isPlaying ? 'running' : 'paused',
-              }}
-            >
-              {row1.map((tile, idx) => (
-                <div
-                  key={`r1-${tile.id}-${idx}`}
-                  onClick={() => onSelectReel(tile)}
-                  onMouseEnter={() => setHoveredTile(tile)}
-                  onMouseLeave={() => setHoveredTile(null)}
-                  className="group/tile relative w-[240px] sm:w-[320px] md:w-[360px] h-[150px] sm:h-[190px] md:h-[210px] rounded-xl overflow-hidden cursor-pointer shrink-0 border-2 border-transparent transition-all duration-300 transform hover:scale-108 hover:z-40 hover:shadow-[0_0_30px_rgba(102,252,241,0.6)]"
-                  style={{
-                    boxShadow: '0 10px 30px rgba(0,0,0,0.8)',
-                  }}
-                >
-                  <img
-                    src={tile.image}
-                    alt={tile.title}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover/tile:scale-115"
+      {/* Main Video Display: 3D Wall OR Multi-Screen Cinema Grid */}
+      {viewMode === '3d-wall' ? (
+        /* 3D Angled Moving Reel Showcase Wall - ALL REELS PLAYING SIMULTANEOUSLY */
+        <div className="relative w-full py-6 transition-all duration-700 select-none perspective-[1200px] scale-[1.03] sm:scale-100 transform-gpu">
+          <div
+            className="space-y-4 sm:space-y-6 transition-transform duration-700 rotate-x-[12deg] -rotate-y-[2deg] rotate-z-[-2deg]"
+            style={{ transformStyle: 'preserve-3d' }}
+          >
+            {/* Row 1: Scrolling Left */}
+            <div className="flex gap-4 sm:gap-6 overflow-hidden w-full relative">
+              <div
+                className="flex gap-4 sm:gap-6 shrink-0"
+                style={{
+                  animation: `scrollLeft ${45 / speedMultiplier}s linear infinite`,
+                  animationPlayState: isPlaying && isActive ? 'running' : 'paused',
+                }}
+              >
+                {row1.map((tile, idx) => (
+                  <LiveReelCard
+                    key={`r1-${tile.id}-${idx}`}
+                    tile={tile}
+                    staggerIndex={idx}
+                    isHovered={hoveredTileId === `r1-${tile.id}-${idx}`}
+                    onMouseEnter={() => setHoveredTileId(`r1-${tile.id}-${idx}`)}
+                    onMouseLeave={() => setHoveredTileId(null)}
+                    onClick={(customTitle) => onSelectReel({ ...tile.reelData, title: customTitle || tile.reelData.title })}
                   />
-                  {/* Neon laser border highlight like the image */}
-                  <div className="absolute inset-0 border-2 border-[#66fcf1]/40 rounded-xl group-hover/tile:border-[#66fcf1] transition-colors pointer-events-none" />
-                  
-                  {/* Glass Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#05070b] via-black/30 to-transparent opacity-85 group-hover/tile:opacity-60 transition-opacity" />
-
-                  {/* Top Badge */}
-                  <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
-                    <span className="px-2 py-0.5 rounded bg-black/80 backdrop-blur-md border border-[#66fcf1]/50 text-[10px] font-mono font-black text-[#66fcf1] tracking-wider uppercase">
-                      {tile.badge}
-                    </span>
-                  </div>
-
-                  {/* Play Hover Action Icon */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/tile:opacity-100 transition-all duration-300">
-                    <div className="w-12 h-12 rounded-full bg-[#66fcf1] text-[#05070b] flex items-center justify-center shadow-[0_0_25px_#66fcf1] transform group-hover/tile:scale-110">
-                      <Play className="w-5 h-5 fill-current ml-0.5" />
-                    </div>
-                  </div>
-
-                  {/* Bottom Title Info */}
-                  <div className="absolute bottom-2.5 left-2.5 right-2.5">
-                    <p className="text-[10px] font-mono uppercase tracking-widest text-[#66fcf1]/90">
-                      {tile.category}
-                    </p>
-                    <h4 className="font-heading font-black text-xs sm:text-sm text-white tracking-wide truncate">
-                      {tile.title}
-                    </h4>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* Row 2: Scrolling Right */}
-          <div className="flex gap-4 sm:gap-6 overflow-hidden w-full relative">
-            <div
-              className="flex gap-4 sm:gap-6 shrink-0"
-              style={{
-                animation: `scrollRight ${50 / speedMultiplier}s linear infinite`,
-                animationPlayState: isPlaying ? 'running' : 'paused',
-              }}
-            >
-              {row2.map((tile, idx) => (
-                <div
-                  key={`r2-${tile.id}-${idx}`}
-                  onClick={() => onSelectReel(tile)}
-                  onMouseEnter={() => setHoveredTile(tile)}
-                  onMouseLeave={() => setHoveredTile(null)}
-                  className="group/tile relative w-[240px] sm:w-[320px] md:w-[360px] h-[150px] sm:h-[190px] md:h-[210px] rounded-xl overflow-hidden cursor-pointer shrink-0 border-2 border-transparent transition-all duration-300 transform hover:scale-108 hover:z-40 hover:shadow-[0_0_30px_rgba(102,252,241,0.6)]"
-                >
-                  <img
-                    src={tile.image}
-                    alt={tile.title}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover/tile:scale-115"
+            {/* Row 2: Scrolling Right */}
+            <div className="flex gap-4 sm:gap-6 overflow-hidden w-full relative">
+              <div
+                className="flex gap-4 sm:gap-6 shrink-0"
+                style={{
+                  animation: `scrollRight ${50 / speedMultiplier}s linear infinite`,
+                  animationPlayState: isPlaying && isActive ? 'running' : 'paused',
+                }}
+              >
+                {row2.map((tile, idx) => (
+                  <LiveReelCard
+                    key={`r2-${tile.id}-${idx}`}
+                    tile={tile}
+                    staggerIndex={idx + 4}
+                    isHovered={hoveredTileId === `r2-${tile.id}-${idx}`}
+                    onMouseEnter={() => setHoveredTileId(`r2-${tile.id}-${idx}`)}
+                    onMouseLeave={() => setHoveredTileId(null)}
+                    onClick={(customTitle) => onSelectReel({ ...tile.reelData, title: customTitle || tile.reelData.title })}
                   />
-                  <div className="absolute inset-0 border-2 border-[#66fcf1]/40 rounded-xl group-hover/tile:border-[#66fcf1] transition-colors pointer-events-none" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#05070b] via-black/30 to-transparent opacity-85 group-hover/tile:opacity-60 transition-opacity" />
-
-                  <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
-                    <span className="px-2 py-0.5 rounded bg-black/80 backdrop-blur-md border border-[#66fcf1]/50 text-[10px] font-mono font-black text-[#66fcf1] tracking-wider uppercase">
-                      {tile.badge}
-                    </span>
-                  </div>
-
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/tile:opacity-100 transition-all duration-300">
-                    <div className="w-12 h-12 rounded-full bg-[#66fcf1] text-[#05070b] flex items-center justify-center shadow-[0_0_25px_#66fcf1] transform group-hover/tile:scale-110">
-                      <Play className="w-5 h-5 fill-current ml-0.5" />
-                    </div>
-                  </div>
-
-                  <div className="absolute bottom-2.5 left-2.5 right-2.5">
-                    <p className="text-[10px] font-mono uppercase tracking-widest text-[#66fcf1]/90">
-                      {tile.category}
-                    </p>
-                    <h4 className="font-heading font-black text-xs sm:text-sm text-white tracking-wide truncate">
-                      {tile.title}
-                    </h4>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Row 3: Scrolling Left */}
-          <div className="flex gap-4 sm:gap-6 overflow-hidden w-full relative">
-            <div
-              className="flex gap-4 sm:gap-6 shrink-0"
-              style={{
-                animation: `scrollLeft ${48 / speedMultiplier}s linear infinite`,
-                animationPlayState: isPlaying ? 'running' : 'paused',
-              }}
-            >
-              {row3.map((tile, idx) => (
-                <div
-                  key={`r3-${tile.id}-${idx}`}
-                  onClick={() => onSelectReel(tile)}
-                  onMouseEnter={() => setHoveredTile(tile)}
-                  onMouseLeave={() => setHoveredTile(null)}
-                  className="group/tile relative w-[240px] sm:w-[320px] md:w-[360px] h-[150px] sm:h-[190px] md:h-[210px] rounded-xl overflow-hidden cursor-pointer shrink-0 border-2 border-transparent transition-all duration-300 transform hover:scale-108 hover:z-40 hover:shadow-[0_0_30px_rgba(102,252,241,0.6)]"
-                >
-                  <img
-                    src={tile.image}
-                    alt={tile.title}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover/tile:scale-115"
-                  />
-                  <div className="absolute inset-0 border-2 border-[#66fcf1]/40 rounded-xl group-hover/tile:border-[#66fcf1] transition-colors pointer-events-none" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#05070b] via-black/30 to-transparent opacity-85 group-hover/tile:opacity-60 transition-opacity" />
-
-                  <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
-                    <span className="px-2 py-0.5 rounded bg-black/80 backdrop-blur-md border border-[#66fcf1]/50 text-[10px] font-mono font-black text-[#66fcf1] tracking-wider uppercase">
-                      {tile.badge}
-                    </span>
-                  </div>
-
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/tile:opacity-100 transition-all duration-300">
-                    <div className="w-12 h-12 rounded-full bg-[#66fcf1] text-[#05070b] flex items-center justify-center shadow-[0_0_25px_#66fcf1] transform group-hover/tile:scale-110">
-                      <Play className="w-5 h-5 fill-current ml-0.5" />
-                    </div>
-                  </div>
-
-                  <div className="absolute bottom-2.5 left-2.5 right-2.5">
-                    <p className="text-[10px] font-mono uppercase tracking-widest text-[#66fcf1]/90">
-                      {tile.category}
-                    </p>
-                    <h4 className="font-heading font-black text-xs sm:text-sm text-white tracking-wide truncate">
-                      {tile.title}
-                    </h4>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      ) : (
+        /* Multi-Screen Studio Matrix Grid View - All reels playing live in studio grid */
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 md:px-12 py-6 relative z-30">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {reelsList.map((tile, idx) => (
+              <div key={`grid-${tile.id}-${idx}`} className="w-full">
+                <LiveReelCard
+                  tile={tile}
+                  isGridMode
+                  staggerIndex={idx}
+                  isHovered={hoveredTileId === `grid-${tile.id}-${idx}`}
+                  onMouseEnter={() => setHoveredTileId(`grid-${tile.id}-${idx}`)}
+                  onMouseLeave={() => setHoveredTileId(null)}
+                  onClick={(customTitle) => onSelectReel({ ...tile.reelData, title: customTitle || tile.reelData.title })}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
-      {/* Floating Center Matrix Controller (matching the game controller aesthetic from the user's reference) */}
+      {/* Floating Center Matrix Controller */}
       <div className="relative z-30 max-w-4xl mx-auto px-4 mt-6">
-        <div className="p-4 rounded-2xl bg-[#050a10]/90 backdrop-blur-xl border border-[#66fcf1]/30 shadow-[0_0_40px_rgba(0,0,0,0.8)] flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="p-4 rounded-2xl bg-[#050a10]/95 backdrop-blur-xl border border-[#66fcf1]/30 shadow-[0_0_40px_rgba(0,0,0,0.8)] flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
+            {viewMode === '3d-wall' && (
+              <button
+                onClick={() => setIsPlaying(!isPlaying)}
+                className={`p-2.5 rounded-xl border flex items-center gap-2 font-mono text-xs font-bold uppercase transition-all ${
+                  isPlaying
+                    ? 'bg-[#66fcf1] text-[#05070b] border-[#66fcf1] shadow-[0_0_15px_rgba(102,252,241,0.5)]'
+                    : 'bg-white/5 text-white border-white/20 hover:bg-white/10'
+                }`}
+              >
+                {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-current" />}
+                <span>{isPlaying ? 'PAUSE MOTION' : 'RESUME MOTION'}</span>
+              </button>
+            )}
+
             <button
-              onClick={() => setIsPlaying(!isPlaying)}
-              className={`p-2.5 rounded-xl border flex items-center gap-2 font-mono text-xs font-bold uppercase transition-all ${
-                isPlaying
+              onClick={() => setViewMode((prev) => (prev === '3d-wall' ? 'cinema-grid' : '3d-wall'))}
+              className={`px-3.5 py-2.5 rounded-xl border flex items-center gap-2 font-mono text-xs font-bold uppercase transition-all ${
+                viewMode === 'cinema-grid'
                   ? 'bg-[#66fcf1] text-[#05070b] border-[#66fcf1] shadow-[0_0_15px_rgba(102,252,241,0.5)]'
-                  : 'bg-white/5 text-white border-white/20 hover:bg-white/10'
+                  : 'bg-white/5 text-white border-white/20 hover:border-[#66fcf1]/50'
               }`}
             >
-              {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-current" />}
-              <span>{isPlaying ? 'PAUSE MOTION' : 'PLAY DYNAMIC'}</span>
-            </button>
-
-            <button
-              onClick={() =>
-                setSpeedMultiplier((prev) => (prev === 1 ? 1.75 : prev === 1.75 ? 0.5 : 1))
-              }
-              className="px-3 py-2 rounded-xl bg-white/5 border border-white/15 text-white text-xs font-mono hover:border-[#66fcf1]/50 flex items-center gap-1.5 transition-all"
-              title="Change scrolling speed"
-            >
-              <FastForward className="w-3.5 h-3.5 text-[#66fcf1]" />
-              <span>SPEED {speedMultiplier}x</span>
-            </button>
-
-            <button
-              onClick={() =>
-                setPerspectiveMode((prev) => (prev === '3d-tilt' ? 'cinematic-flat' : '3d-tilt'))
-              }
-              className="px-3 py-2 rounded-xl bg-white/5 border border-white/15 text-white text-xs font-mono hover:border-[#66fcf1]/50 flex items-center gap-1.5 transition-all"
-            >
-              <Layers className="w-3.5 h-3.5 text-[#66fcf1]" />
-              <span>{perspectiveMode === '3d-tilt' ? '3D MATRIX' : 'FLAT GRID'}</span>
+              {viewMode === '3d-wall' ? (
+                <>
+                  <LayoutGrid className="w-4 h-4" />
+                  <span>STUDIO MATRIX GRID</span>
+                </>
+              ) : (
+                <>
+                  <Layers className="w-4 h-4 text-[#66fcf1]" />
+                  <span>3D KINETIC WALL</span>
+                </>
+              )}
             </button>
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="text-[11px] font-mono text-[#87949c] hidden md:inline-block">
-              {hoveredTile ? (
-                <span className="text-[#66fcf1] font-bold">READY TO PLAY: {hoveredTile.title}</span>
-              ) : (
-                '12+ 4K MASTER SHOWREELS ACTIVE'
-              )}
-            </span>
+            <div className="text-[11px] font-mono text-[#66fcf1] flex items-center gap-1.5 font-bold">
+              <span className="w-2 h-2 rounded-full bg-[#66fcf1] animate-pulse" />
+              <span>{reelsList.length} SHOWREEL FEEDS ACTIVE</span>
+            </div>
 
             <button
               onClick={onOpenTestShotModal}
-              className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#66fcf1] to-[#45b649] text-[#05070b] font-heading font-black text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(102,252,241,0.4)] hover:scale-105 transition-all flex items-center gap-1.5"
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#66fcf1] to-[#45b649] text-[#05070b] font-heading font-black text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(102,252,241,0.4)] hover:scale-105 transition-all flex items-center gap-1.5 shrink-0"
             >
               <Zap className="w-3.5 h-3.5 fill-current" />
               <span>REQUEST SHOT BRIEF</span>
             </button>
           </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+interface LiveReelCardProps {
+  tile: {
+    id: string;
+    title: string;
+    category: string;
+    image: string;
+    videoUrl: string;
+    badge: string;
+    glowColor?: string;
+  };
+  isGridMode?: boolean;
+  isHovered: boolean;
+  staggerIndex?: number;
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
+  onClick: (customTitle?: string) => void;
+}
+
+const LiveReelCard: React.FC<LiveReelCardProps> = ({
+  tile,
+  isGridMode = false,
+  isHovered,
+  staggerIndex = 0,
+  onMouseEnter,
+  onMouseLeave,
+  onClick,
+}) => {
+  const hasVideo = !!(tile.videoUrl && (extractYouTubeId(tile.videoUrl) || isDirectVideoUrl(tile.videoUrl)));
+  const isDirect = isDirectVideoUrl(tile.videoUrl);
+  const ytId = useMemo(() => extractYouTubeId(tile.videoUrl), [tile.videoUrl]);
+  const ytThumb = ytId ? `https://i.ytimg.com/vi/${ytId}/hqdefault.jpg` : null;
+  const posterSrc = tile.image || ytThumb || 'https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=800&auto=format&fit=crop';
+
+  const [canMountIframe, setCanMountIframe] = useState(false);
+  const [isIframeLoaded, setIsIframeLoaded] = useState(false);
+  const [videoTitle, setVideoTitle] = useState<string>(tile.title);
+
+  // Fetch real YouTube video title cleanly via public oembed
+  useEffect(() => {
+    let isMounted = true;
+    if (ytId) {
+      fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${ytId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (isMounted && data && data.title) {
+            setVideoTitle(data.title);
+          }
+        })
+        .catch(() => {});
+    } else {
+      setVideoTitle(tile.title);
+    }
+    return () => {
+      isMounted = false;
+    };
+  }, [ytId, tile.title]);
+
+  useEffect(() => {
+    if (!hasVideo || isDirect) return;
+    // Stagger network requests cleanly across time so YouTube connections don't bottleneck
+    const timer = setTimeout(() => {
+      setCanMountIframe(true);
+    }, Math.min(staggerIndex * 150, 1600));
+    return () => clearTimeout(timer);
+  }, [hasVideo, isDirect, staggerIndex]);
+
+  // ALL REELS PLAY CONTINUOUSLY WITHOUT HOVERING
+  const embedUrl = useMemo(() => {
+    if (!hasVideo || isDirect) return null;
+    return getYouTubeEmbedUrl(tile.videoUrl, {
+      autoplay: true,
+      mute: true,
+      loop: true,
+      controls: false,
+      modestbranding: true,
+    });
+  }, [hasVideo, isDirect, tile.videoUrl]);
+
+  return (
+    <div
+      onClick={() => onClick(videoTitle)}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      className={`group/tile relative ${
+        isGridMode
+          ? 'w-full aspect-video rounded-2xl'
+          : 'w-[260px] sm:w-[340px] md:w-[380px] h-[160px] sm:h-[200px] md:h-[220px] rounded-xl shrink-0'
+      } overflow-hidden cursor-pointer border-2 transition-all duration-300 transform bg-[#05070b] ${
+        isHovered
+          ? 'border-[#66fcf1] scale-105 z-30 shadow-[0_0_35px_rgba(102,252,241,0.8)]'
+          : 'border-white/20 hover:border-[#66fcf1] shadow-[0_10px_30px_rgba(0,0,0,0.8)]'
+      }`}
+    >
+      {/* 1. Base Layer: Instant High-Res Cinematic Master Poster (Prevents any blank or buffering lag) */}
+      <img
+        src={posterSrc}
+        alt={videoTitle}
+        loading="eager"
+        decoding="async"
+        className="absolute inset-0 w-full h-full object-cover filter contrast-[1.08] brightness-[0.95]"
+      />
+
+      {/* 2. Real Video Playback - Autoplays live continuously without hovering */}
+      {hasVideo && (
+        isDirect ? (
+          <video
+            src={tile.videoUrl}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        ) : embedUrl && canMountIframe ? (
+          <div className="absolute inset-0 w-full h-full overflow-hidden bg-transparent pointer-events-none">
+            <iframe
+              src={embedUrl}
+              title={videoTitle}
+              loading="lazy"
+              referrerPolicy="strict-origin-when-cross-origin"
+              onLoad={() => setIsIframeLoaded(true)}
+              className={`w-full h-full border-0 scale-125 object-cover transition-opacity duration-700 ${
+                isIframeLoaded ? 'opacity-100' : 'opacity-0'
+              }`}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            />
+          </div>
+        ) : null
+      )}
+
+      {/* Transparent Click Overlay to capture user clicks effortlessly */}
+      <div className="absolute inset-0 z-20 cursor-pointer" />
+
+      {/* Glass Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-[#05070b] via-black/20 to-transparent opacity-85 group-hover/tile:opacity-40 transition-opacity pointer-events-none z-10" />
+
+      {/* Neon laser border highlight */}
+      <div className="absolute inset-0 border border-[#66fcf1]/30 rounded-xl group-hover/tile:border-[#66fcf1] transition-colors pointer-events-none z-20" />
+
+      {/* Hover Expand Icon */}
+      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/tile:opacity-100 transition-all duration-300 pointer-events-none z-20">
+        <div className="px-4 py-2 rounded-xl bg-[#66fcf1] text-[#05070b] font-heading font-black text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-[0_0_25px_#66fcf1] transform group-hover/tile:scale-105">
+          <Maximize2 className="w-4 h-4" />
+          <span>OPEN 4K CINEMA MASTER</span>
+        </div>
+      </div>
+
+      {/* Bottom Title Info: Displaying ONLY the fetched title of the video */}
+      <div className="absolute bottom-2.5 left-2.5 right-2.5 pointer-events-none z-20">
+        <div className="bg-[#05070b]/85 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/15 shadow-lg">
+          <h4 className="font-heading font-bold text-xs sm:text-sm text-white tracking-wide truncate drop-shadow-md">
+            {videoTitle}
+          </h4>
         </div>
       </div>
     </div>

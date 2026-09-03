@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { WorkShot } from '../types';
 import { Play, Sparkles, Layers, Sliders, Maximize2, X, CheckCircle2, Film, Edit3 } from 'lucide-react';
 import { useSiteConfig } from '../context/SiteConfigContext';
+import { extractYouTubeId, getYouTubeEmbedUrl, isDirectVideoUrl } from '../utils/mediaUtils';
 
 interface WorkShowcaseProps {
   onOpenTestShotModal: (shotType?: string) => void;
@@ -75,36 +76,62 @@ export const WorkShowcase: React.FC<WorkShowcaseProps> = ({ onOpenTestShotModal,
               {/* Background Ambient Grid Pulse */}
               <div className="absolute inset-0 vfx-mesh-pattern animate-grid-pulse pointer-events-none opacity-60" />
 
-              {/* Base Original Image Plate */}
-              <img
-                src={featuredShot.originalImage}
-                alt="Original Film Plate"
-                className="absolute inset-0 w-full h-full object-cover select-none filter contrast-105"
-              />
-
-              {/* VFX Processed Matte Image (Clipped by Slider) */}
-              <div
-                className="absolute inset-0 overflow-hidden select-none pointer-events-none"
-                style={{ clipPath: `polygon(0 0, ${sliderPosition[featuredShot.id] ?? 50}% 0, ${sliderPosition[featuredShot.id] ?? 50}% 100%, 0 100%)` }}
-              >
-                <img
-                  src={featuredShot.processedImage}
-                  alt="Rotoscoped Matte Channel"
-                  className="absolute inset-0 w-full h-full object-cover filter saturate-150 contrast-125 hue-rotate-15"
-                />
-                {/* Matte Color Overlay simulation */}
-                <div className="absolute inset-0 bg-[#66fcf1]/20 mix-blend-color-dodge pointer-events-none" />
-              </div>
-
-              {/* Wipe Divider Line */}
-              <div
-                className="absolute top-0 bottom-0 w-[2px] bg-[#66fcf1] pointer-events-none shadow-[0_0_15px_#66fcf1]"
-                style={{ left: `${sliderPosition[featuredShot.id] ?? 50}%` }}
-              >
-                <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-[#05070b] border-2 border-[#66fcf1] flex items-center justify-center text-[#66fcf1] shadow-lg">
-                  <Sliders className="w-3.5 h-3.5" />
+              {/* Main Visual: Video Autoplay if available, otherwise A/B Wipe */}
+              {featuredShot.videoUrl && (extractYouTubeId(featuredShot.videoUrl) || isDirectVideoUrl(featuredShot.videoUrl)) ? (
+                <div className="absolute inset-0 bg-black">
+                  {isDirectVideoUrl(featuredShot.videoUrl) ? (
+                    <video
+                      src={featuredShot.videoUrl || undefined}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      className="w-full h-full object-cover"
+                    />
+                  ) : getYouTubeEmbedUrl(featuredShot.videoUrl, { autoplay: true, mute: true, loop: true, controls: false }) ? (
+                    <iframe
+                      src={getYouTubeEmbedUrl(featuredShot.videoUrl, { autoplay: true, mute: true, loop: true, controls: false })!}
+                      title={featuredShot.title}
+                      referrerPolicy="strict-origin-when-cross-origin"
+                      className="w-full h-full border-0 pointer-events-none scale-125"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    />
+                  ) : null}
                 </div>
-              </div>
+              ) : (
+                <>
+                  {/* Base Original Image Plate */}
+                  <img
+                    src={featuredShot.originalImage}
+                    alt="Original Film Plate"
+                    className="absolute inset-0 w-full h-full object-cover select-none filter contrast-105"
+                  />
+
+                  {/* VFX Processed Matte Image (Clipped by Slider) */}
+                  <div
+                    className="absolute inset-0 overflow-hidden select-none pointer-events-none"
+                    style={{ clipPath: `polygon(0 0, ${sliderPosition[featuredShot.id] ?? 50}% 0, ${sliderPosition[featuredShot.id] ?? 50}% 100%, 0 100%)` }}
+                  >
+                    <img
+                      src={featuredShot.processedImage}
+                      alt="Rotoscoped Matte Channel"
+                      className="absolute inset-0 w-full h-full object-cover filter saturate-150 contrast-125 hue-rotate-15"
+                    />
+                    {/* Matte Color Overlay simulation */}
+                    <div className="absolute inset-0 bg-[#66fcf1]/20 mix-blend-color-dodge pointer-events-none" />
+                  </div>
+
+                  {/* Wipe Divider Line */}
+                  <div
+                    className="absolute top-0 bottom-0 w-[2px] bg-[#66fcf1] pointer-events-none shadow-[0_0_15px_#66fcf1]"
+                    style={{ left: `${sliderPosition[featuredShot.id] ?? 50}%` }}
+                  >
+                    <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-[#05070b] border-2 border-[#66fcf1] flex items-center justify-center text-[#66fcf1] shadow-lg">
+                      <Sliders className="w-3.5 h-3.5" />
+                    </div>
+                  </div>
+                </>
+              )}
 
               {/* Gradient Scrim for Readability */}
               <div className="absolute inset-0 bg-gradient-to-t from-[#05070b] via-[#05070b]/30 to-transparent pointer-events-none z-[3]" />
@@ -170,31 +197,57 @@ export const WorkShowcase: React.FC<WorkShowcaseProps> = ({ onOpenTestShotModal,
                 {/* Visual Mesh */}
                 <div className="absolute inset-0 vfx-mesh-pattern pointer-events-none opacity-40" />
 
-                {/* Base Image */}
-                <img
-                  src={shot.originalImage}
-                  alt={shot.title}
-                  className="absolute inset-0 w-full h-full object-cover select-none filter contrast-105"
-                />
+                {/* Visual Content: Video Autoplay if available, otherwise A/B Wipe */}
+                {shot.videoUrl && (extractYouTubeId(shot.videoUrl) || isDirectVideoUrl(shot.videoUrl)) ? (
+                  <div className="absolute inset-0 bg-black">
+                    {isDirectVideoUrl(shot.videoUrl) ? (
+                      <video
+                        src={shot.videoUrl || undefined}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        className="w-full h-full object-cover"
+                      />
+                    ) : getYouTubeEmbedUrl(shot.videoUrl, { autoplay: true, mute: true, loop: true, controls: false }) ? (
+                      <iframe
+                        src={getYouTubeEmbedUrl(shot.videoUrl, { autoplay: true, mute: true, loop: true, controls: false })!}
+                        title={shot.title}
+                        referrerPolicy="strict-origin-when-cross-origin"
+                        className="w-full h-full border-0 pointer-events-none scale-125"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      />
+                    ) : null}
+                  </div>
+                ) : (
+                  <>
+                    {/* Base Image */}
+                    <img
+                      src={shot.originalImage}
+                      alt={shot.title}
+                      className="absolute inset-0 w-full h-full object-cover select-none filter contrast-105"
+                    />
 
-                {/* Processed Clipped Image */}
-                <div
-                  className="absolute inset-0 overflow-hidden select-none pointer-events-none"
-                  style={{ clipPath: `polygon(0 0, ${sliderPosition[shot.id] ?? 50}% 0, ${sliderPosition[shot.id] ?? 50}% 100%, 0 100%)` }}
-                >
-                  <img
-                    src={shot.processedImage}
-                    alt={shot.title}
-                    className="absolute inset-0 w-full h-full object-cover filter saturate-150 contrast-125"
-                  />
-                  <div className="absolute inset-0 bg-[#66fcf1]/15 mix-blend-color-dodge pointer-events-none" />
-                </div>
+                    {/* Processed Clipped Image */}
+                    <div
+                      className="absolute inset-0 overflow-hidden select-none pointer-events-none"
+                      style={{ clipPath: `polygon(0 0, ${sliderPosition[shot.id] ?? 50}% 0, ${sliderPosition[shot.id] ?? 50}% 100%, 0 100%)` }}
+                    >
+                      <img
+                        src={shot.processedImage}
+                        alt={shot.title}
+                        className="absolute inset-0 w-full h-full object-cover filter saturate-150 contrast-125"
+                      />
+                      <div className="absolute inset-0 bg-[#66fcf1]/15 mix-blend-color-dodge pointer-events-none" />
+                    </div>
 
-                {/* Divider Line */}
-                <div
-                  className="absolute top-0 bottom-0 w-[2px] bg-[#66fcf1] pointer-events-none shadow-[0_0_10px_#66fcf1]"
-                  style={{ left: `${sliderPosition[shot.id] ?? 50}%` }}
-                />
+                    {/* Divider Line */}
+                    <div
+                      className="absolute top-0 bottom-0 w-[2px] bg-[#66fcf1] pointer-events-none shadow-[0_0_10px_#66fcf1]"
+                      style={{ left: `${sliderPosition[shot.id] ?? 50}%` }}
+                    />
+                  </>
+                )}
 
                 {/* Scrim */}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#05070b] via-[#05070b]/40 to-transparent pointer-events-none z-[3]" />
@@ -299,22 +352,45 @@ export const WorkShowcase: React.FC<WorkShowcaseProps> = ({ onOpenTestShotModal,
               {activeShot.description}
             </p>
 
-            {/* Split Comparison Preview in Modal */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-              <div className="rounded-xl overflow-hidden border border-white/10 bg-black">
-                <div className="text-[10px] font-mono uppercase bg-black/80 px-3 py-1 text-[#9daab4] border-b border-white/10">
-                  Raw Ingest Plate
-                </div>
-                <img src={activeShot.originalImage} alt="Raw Plate" className="w-full h-48 object-cover" />
+            {/* Visual Preview in Modal (Video or Split Comparison) */}
+            {activeShot.videoUrl && (extractYouTubeId(activeShot.videoUrl) || isDirectVideoUrl(activeShot.videoUrl)) ? (
+              <div className="rounded-xl overflow-hidden border border-[#66fcf1]/40 bg-black aspect-video mb-6 shadow-2xl">
+                {isDirectVideoUrl(activeShot.videoUrl) ? (
+                  <video
+                    src={activeShot.videoUrl || undefined}
+                    autoPlay
+                    controls
+                    playsInline
+                    className="w-full h-full object-contain"
+                  />
+                ) : getYouTubeEmbedUrl(activeShot.videoUrl, { autoplay: true, mute: false, loop: true, controls: true }) ? (
+                  <iframe
+                    src={getYouTubeEmbedUrl(activeShot.videoUrl, { autoplay: true, mute: false, loop: true, controls: true })!}
+                    title={activeShot.title}
+                    referrerPolicy="strict-origin-when-cross-origin"
+                    className="w-full h-full border-0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                ) : null}
               </div>
-              <div className="rounded-xl overflow-hidden border border-[#66fcf1]/30 bg-black">
-                <div className="text-[10px] font-mono uppercase bg-black/80 px-3 py-1 text-[#66fcf1] border-b border-[#66fcf1]/20 flex justify-between">
-                  <span>Isolated Alpha / Cleaned</span>
-                  <span>QC PASSED</span>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                <div className="rounded-xl overflow-hidden border border-white/10 bg-black">
+                  <div className="text-[10px] font-mono uppercase bg-black/80 px-3 py-1 text-[#9daab4] border-b border-white/10">
+                    Raw Ingest Plate
+                  </div>
+                  <img src={activeShot.originalImage || undefined} alt="Raw Plate" className="w-full h-48 object-cover" />
                 </div>
-                <img src={activeShot.processedImage} alt="Processed Alpha" className="w-full h-48 object-cover filter saturate-150 contrast-125" />
+                <div className="rounded-xl overflow-hidden border border-[#66fcf1]/30 bg-black">
+                  <div className="text-[10px] font-mono uppercase bg-black/80 px-3 py-1 text-[#66fcf1] border-b border-[#66fcf1]/20 flex justify-between">
+                    <span>Isolated Alpha / Cleaned</span>
+                    <span>QC PASSED</span>
+                  </div>
+                  <img src={activeShot.processedImage || undefined} alt="Processed Alpha" className="w-full h-48 object-cover filter saturate-150 contrast-125" />
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Specs Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 rounded-xl bg-black/40 border border-white/5 mb-6 text-xs">

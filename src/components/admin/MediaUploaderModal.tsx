@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { X, Upload, Link, Check, Image as ImageIcon, Film, Sparkles } from 'lucide-react';
+import { X, Upload, Link, Check, Image as ImageIcon, Film, Sparkles, RefreshCw, AlertCircle, ListMusic } from 'lucide-react';
+import { isDirectVideoUrl, extractYouTubeId, extractPlaylistId } from '../../utils/mediaUtils';
 
 interface MediaUploaderModalProps {
   isOpen: boolean;
@@ -53,18 +54,48 @@ const PRESET_VFX_IMAGES = [
   },
 ];
 
-const PRESET_YOUTUBE_VIDEOS = [
+const PRESET_SHOWREELS = [
   {
-    name: 'Roto Paint Wala Official Showreel (P5vvOZRO9JU)',
-    id: 'P5vvOZRO9JU',
+    name: 'RPW Official Studio Reel (P5vvOZRO9JU)',
+    url: 'P5vvOZRO9JU',
+    badge: 'YOUTUBE 4K',
+    type: 'youtube',
   },
   {
-    name: 'VFX Breakdown & Prep Reel (dQw4w9WgXcQ)',
-    id: 'dQw4w9WgXcQ',
+    name: 'RPW Official VFX Production Playlist Matrix',
+    url: 'PLrAl6sJc9k_VwW1v4HjD4Lw_zR-wzD5bN',
+    badge: 'PLAYLIST',
+    type: 'playlist',
   },
   {
-    name: 'Cinematic Nuke Comp Reel (L_LUpnjgPso)',
-    id: 'L_LUpnjgPso',
+    name: 'Cinematic VFX Breakdown Prep Reel',
+    url: 'dQw4w9WgXcQ',
+    badge: 'YOUTUBE REEL',
+    type: 'youtube',
+  },
+  {
+    name: 'High-Energy Sci-Fi Roto Reel',
+    url: 'L_LUpnjgPso',
+    badge: 'YOUTUBE REEL',
+    type: 'youtube',
+  },
+  {
+    name: 'Direct MP4 Stream: Big Buck Bunny Clean Plate',
+    url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+    badge: 'DIRECT MP4',
+    type: 'direct',
+  },
+  {
+    name: 'Direct MP4 Stream: Tears of Steel VFX Plate',
+    url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
+    badge: 'DIRECT MP4',
+    type: 'direct',
+  },
+  {
+    name: 'Direct MP4 Stream: Elephants Dream Render',
+    url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+    badge: 'DIRECT MP4',
+    type: 'direct',
   },
 ];
 
@@ -76,35 +107,109 @@ export const MediaUploaderModal: React.FC<MediaUploaderModalProps> = ({
   mediaType,
   onSelect,
 }) => {
-  const [urlInput, setUrlInput] = useState(currentValue);
-  const [previewUrl, setPreviewUrl] = useState(currentValue);
+  const [urlInput, setUrlInput] = useState(currentValue || '');
+  const [previewUrl, setPreviewUrl] = useState(currentValue || '');
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [isDragOver, setIsDragOver] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const processFile = async (file: File) => {
+    setUploadError(null);
+    setIsUploading(true);
+
+    const isVid = file.type.startsWith('video/') || /\.(mp4|webm|mov|m4v|ogg)$/i.test(file.name);
+    const isImg = file.type.startsWith('image/') || /\.(png|jpe?g|webp|svg|gif)$/i.test(file.name);
+
+    if (mediaType === 'video' && !isVid) {
+      setUploadError('Please select a valid video file (.mp4, .webm, or .mov).');
+      setIsUploading(false);
+      return;
+    }
+
+    if (mediaType === 'image' && !isImg) {
+      setUploadError('Please select a valid image file (.png, .jpg, .webp, or .svg).');
+      setIsUploading(false);
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      if (typeof reader.result === 'string') {
+        const rawData = reader.result;
+        setPreviewUrl(rawData);
+
+        // Upload to server endpoint to get a lightweight, persistent static URL
+        try {
+          const res = await fetch('/api/upload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ dataUrl: rawData, filename: file.name }),
+          });
+          const data = await res.json();
+          if (data.success && data.url) {
+            setUrlInput(data.url);
+            setPreviewUrl(data.url);
+          } else {
+            // Fallback to raw data url if server returned error
+            setUrlInput(rawData);
+          }
+        } catch (err) {
+          console.warn('Upload API error, using direct data stream:', err);
+          setUrlInput(rawData);
+        } finally {
+          setIsUploading(false);
+        }
+      }
+    };
+
+    reader.onerror = () => {
+      setUploadError('Failed to read file from disk. Please try again.');
+      setIsUploading(false);
+    };
+
+    reader.readAsDataURL(file);
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (typeof reader.result === 'string') {
-          setUrlInput(reader.result);
-          setPreviewUrl(reader.result);
-        }
-      };
-      reader.readAsDataURL(file);
+      await processFile(file);
+    }
+  };
+
+  const handleDrop = async (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      await processFile(file);
     }
   };
 
   const handleApply = () => {
-    onSelect(urlInput);
+    let finalUrl = urlInput.trim();
+    if (mediaType === 'video') {
+      if (!isDirectVideoUrl(finalUrl)) {
+        const plId = extractPlaylistId(finalUrl);
+        if (plId) {
+          finalUrl = plId;
+        } else {
+          const ytId = extractYouTubeId(finalUrl);
+          if (ytId) {
+            finalUrl = ytId;
+          }
+        }
+      }
+    }
+    onSelect(finalUrl);
     onClose();
   };
 
-  // Helper to extract YouTube ID if user pastes full youtube link
-  const cleanYouTubeId = (input: string) => {
-    const match = input.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
-    return match ? match[1] : input.trim();
-  };
+  const isCurrentDirectVideo = isDirectVideoUrl(previewUrl);
+  const currentPlId = extractPlaylistId(previewUrl);
+  const currentYtId = extractYouTubeId(previewUrl);
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl animate-in fade-in duration-200">
@@ -130,66 +235,137 @@ export const MediaUploaderModal: React.FC<MediaUploaderModalProps> = ({
         </div>
         <p className="text-xs text-[#9daab4] mb-6">
           {mediaType === 'video'
-            ? 'Provide a YouTube Video ID, embed link, or pick from our high-res VFX showreel presets.'
+            ? 'Upload your MP4/WebM video file directly, paste a YouTube/Vimeo link, or pick from our high-res VFX presets. Changes reflect immediately.'
             : 'Enter an image URL, upload a local media asset, or select from curated VFX production presets.'}
         </p>
 
         {/* URL / ID Input Form */}
         <div className="space-y-4 mb-6">
           <div>
-            <label className="block text-xs font-mono uppercase text-[#66fcf1] font-bold mb-2">
-              {mediaType === 'video' ? 'YouTube Video ID or Full Link' : 'Media Asset URL or Base64'}
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-xs font-mono uppercase text-[#66fcf1] font-bold">
+                {mediaType === 'video' ? 'Video File URL or YouTube ID / Link' : 'Media Asset URL or Base64'}
+              </label>
+              {mediaType === 'video' && (
+                <span className="text-[10px] font-mono text-[#9daab4]">
+                  {isCurrentDirectVideo ? 'Direct MP4 / WebM' : currentYtId ? `YouTube ID: ${currentYtId}` : 'Ready for input'}
+                </span>
+              )}
+            </div>
             <div className="relative flex items-center">
               <input
                 type="text"
                 value={urlInput}
                 onChange={(e) => {
-                  const val = mediaType === 'video' ? cleanYouTubeId(e.target.value) : e.target.value;
+                  const val = e.target.value;
                   setUrlInput(val);
                   setPreviewUrl(val);
                 }}
-                placeholder={mediaType === 'video' ? 'e.g. P5vvOZRO9JU or https://youtube.com/watch?v=...' : 'https://... or upload below'}
+                placeholder={
+                  mediaType === 'video'
+                    ? 'Paste YouTube link, MP4 URL, or upload below...'
+                    : 'https://... or upload below'
+                }
                 className="w-full bg-[#05070b] border border-white/20 focus:border-[#66fcf1] rounded-xl px-4 py-3 text-xs text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-[#66fcf1] transition-all font-mono"
               />
             </div>
           </div>
 
-          {/* Local File Upload for Images */}
-          {mediaType === 'image' && (
-            <div>
-              <label className="block text-xs font-mono uppercase text-[#9daab4] mb-2">
-                Or Upload from Computer:
-              </label>
-              <label className="flex items-center justify-center gap-2 w-full p-4 border border-dashed border-[#66fcf1]/30 hover:border-[#66fcf1] rounded-xl bg-white/[0.02] hover:bg-[#66fcf1]/[0.05] cursor-pointer transition-all text-xs text-[#9daab4] hover:text-white">
-                <Upload className="w-4 h-4 text-[#66fcf1]" />
-                <span>Choose PNG / JPG / SVG / WebP</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                />
-              </label>
-            </div>
-          )}
+          {/* Local File Upload for Both Video and Image */}
+          <div>
+            <label className="block text-xs font-mono uppercase text-[#9daab4] mb-2">
+              {mediaType === 'video' ? 'Or Upload Video File From Computer (.MP4, .WebM, .MOV):' : 'Or Upload Image From Computer:'}
+            </label>
+            <label
+              onDragOver={(e) => {
+                e.preventDefault();
+                setIsDragOver(true);
+              }}
+              onDragLeave={() => setIsDragOver(false)}
+              onDrop={handleDrop}
+              className={`flex flex-col sm:flex-row items-center justify-center gap-2 w-full p-4 border border-dashed rounded-xl cursor-pointer transition-all text-xs ${
+                isDragOver
+                  ? 'border-[#66fcf1] bg-[#66fcf1]/10 text-white'
+                  : 'border-[#66fcf1]/30 hover:border-[#66fcf1] bg-white/[0.02] hover:bg-[#66fcf1]/[0.05] text-[#9daab4] hover:text-white'
+              }`}
+            >
+              {isUploading ? (
+                <div className="flex items-center gap-2 text-[#66fcf1]">
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  <span className="font-mono font-bold">Uploading & saving reel to server...</span>
+                </div>
+              ) : (
+                <>
+                  <Upload className="w-4 h-4 text-[#66fcf1]" />
+                  <span>
+                    {mediaType === 'video'
+                      ? 'Click or Drop MP4, WebM, or MOV video showreel'
+                      : 'Choose PNG, JPG, SVG, or WebP'}
+                  </span>
+                </>
+              )}
+              <input
+                type="file"
+                accept={mediaType === 'video' ? 'video/mp4,video/webm,video/quicktime,video/*' : 'image/*'}
+                onChange={handleFileUpload}
+                disabled={isUploading}
+                className="hidden"
+              />
+            </label>
+            {uploadError && (
+              <div className="mt-2 text-[11px] text-rose-400 flex items-center gap-1.5 font-mono">
+                <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                <span>{uploadError}</span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Live Preview Box */}
         <div className="mb-6">
           <label className="block text-xs font-mono uppercase text-[#9daab4] mb-2">
-            Live Preview:
+            Live Preview (Before & After Publishing):
           </label>
-          <div className="w-full h-44 rounded-xl bg-black border border-white/10 flex items-center justify-center overflow-hidden relative">
+          <div className="w-full h-48 rounded-xl bg-black border border-white/10 flex items-center justify-center overflow-hidden relative">
             {mediaType === 'video' ? (
-              previewUrl ? (
-                <iframe
-                  src={`https://www.youtube.com/embed/${previewUrl}?controls=0&mute=1&autoplay=0`}
-                  title="Video Preview"
-                  className="w-full h-full pointer-events-none"
+              isCurrentDirectVideo ? (
+                <video
+                  src={previewUrl}
+                  controls
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover"
                 />
+              ) : currentPlId ? (
+                <iframe
+                  src={`https://www.youtube-nocookie.com/embed/videoseries?list=${currentPlId}&controls=1&mute=1&autoplay=0`}
+                  title="Playlist Preview"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  className="w-full h-full"
+                />
+              ) : currentYtId ? (
+                <iframe
+                  src={`https://www.youtube-nocookie.com/embed/${currentYtId}?controls=1&mute=1&autoplay=0`}
+                  title="Video Preview"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  className="w-full h-full"
+                />
+              ) : previewUrl ? (
+                <div className="text-center p-4">
+                  <Film className="w-8 h-8 text-[#66fcf1] mx-auto mb-2 opacity-50" />
+                  <span className="text-xs text-white/70 block font-mono">
+                    Video link ready: {previewUrl.substring(0, 45)}...
+                  </span>
+                  <span className="text-[10px] text-[#9daab4] mt-1 block">
+                    Click "Apply Media Asset" to load and play
+                  </span>
+                </div>
               ) : (
-                <span className="text-xs text-white/40">No video selected</span>
+                <span className="text-xs text-white/40 font-mono">No video or reel selected</span>
               )
             ) : previewUrl ? (
               <img
@@ -201,7 +377,7 @@ export const MediaUploaderModal: React.FC<MediaUploaderModalProps> = ({
                 }}
               />
             ) : (
-              <span className="text-xs text-white/40">No image selected</span>
+              <span className="text-xs text-white/40 font-mono">No image selected</span>
             )}
           </div>
         </div>
@@ -213,29 +389,41 @@ export const MediaUploaderModal: React.FC<MediaUploaderModalProps> = ({
           </label>
           {mediaType === 'video' ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {PRESET_YOUTUBE_VIDEOS.map((vid) => (
-                <button
-                  key={vid.id}
-                  onClick={() => {
-                    setUrlInput(vid.id);
-                    setPreviewUrl(vid.id);
-                  }}
-                  className={`p-3 rounded-xl border text-left transition-all text-xs flex items-center justify-between ${
-                    urlInput === vid.id
-                      ? 'bg-[#66fcf1]/15 border-[#66fcf1] text-[#66fcf1]'
-                      : 'bg-white/5 border-white/10 text-[#9daab4] hover:text-white hover:border-white/30'
-                  }`}
-                >
-                  <span className="truncate pr-2 font-medium">{vid.name}</span>
-                  {urlInput === vid.id && <Check className="w-3.5 h-3.5 shrink-0 text-[#66fcf1]" />}
-                </button>
-              ))}
+              {PRESET_SHOWREELS.map((vid, idx) => {
+                const isSelected = urlInput === vid.url || (vid.type === 'youtube' && urlInput === vid.url);
+                return (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => {
+                      setUrlInput(vid.url);
+                      setPreviewUrl(vid.url);
+                    }}
+                    className={`p-3 rounded-xl border text-left transition-all text-xs flex items-center justify-between ${
+                      isSelected
+                        ? 'bg-[#66fcf1]/15 border-[#66fcf1] text-[#66fcf1]'
+                        : 'bg-white/5 border-white/10 text-[#9daab4] hover:text-white hover:border-white/30'
+                    }`}
+                  >
+                    <div className="min-w-0 pr-2">
+                      <div className="flex items-center gap-1.5 mb-0.5">
+                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-white/10 text-white/80 font-mono">
+                          {vid.badge}
+                        </span>
+                      </div>
+                      <span className="truncate block font-medium text-white/90">{vid.name}</span>
+                    </div>
+                    {isSelected && <Check className="w-4 h-4 shrink-0 text-[#66fcf1]" />}
+                  </button>
+                );
+              })}
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {PRESET_VFX_IMAGES.map((preset, idx) => (
                 <button
                   key={idx}
+                  type="button"
                   onClick={() => {
                     setUrlInput(preset.url);
                     setPreviewUrl(preset.url);
@@ -266,20 +454,26 @@ export const MediaUploaderModal: React.FC<MediaUploaderModalProps> = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
-          <button
-            onClick={onClose}
-            className="px-5 py-2.5 rounded-full text-xs font-semibold text-[#aeb9c1] hover:text-white border border-white/15 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleApply}
-            className="px-6 py-2.5 rounded-full text-xs font-extrabold uppercase tracking-wider text-[#05070b] bg-[#66fcf1] hover:shadow-[0_0_25px_rgba(102,252,241,0.4)] transition-all flex items-center gap-2"
-          >
-            <Check className="w-4 h-4" />
-            <span>Apply Media Asset</span>
-          </button>
+        <div className="flex items-center justify-between pt-4 border-t border-white/10">
+          <span className="text-[11px] text-[#9daab4] font-mono">
+            Applies to hero reel immediately
+          </span>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={onClose}
+              className="px-5 py-2.5 rounded-full text-xs font-semibold text-[#aeb9c1] hover:text-white border border-white/15 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleApply}
+              disabled={isUploading}
+              className="px-6 py-2.5 rounded-full text-xs font-extrabold uppercase tracking-wider text-[#05070b] bg-[#66fcf1] hover:shadow-[0_0_25px_rgba(102,252,241,0.4)] transition-all flex items-center gap-2 disabled:opacity-50"
+            >
+              <Check className="w-4 h-4" />
+              <span>Apply Media Asset</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

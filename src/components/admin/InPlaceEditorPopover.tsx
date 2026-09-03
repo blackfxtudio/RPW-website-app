@@ -7,6 +7,7 @@ import {
   Plus, 
   Image as ImageIcon, 
   Film, 
+  ListMusic,
   Type, 
   Sparkles, 
   Maximize2,
@@ -14,6 +15,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { MediaUploaderModal } from './MediaUploaderModal';
+import { extractYouTubeId, extractPlaylistId, isDirectVideoUrl } from '../../utils/mediaUtils';
 
 interface InPlaceEditorPopoverProps {
   onClose: () => void;
@@ -37,7 +39,23 @@ export const InPlaceEditorPopover: React.FC<InPlaceEditorPopoverProps> = ({ onCl
 
   const handleMediaSelected = (url: string) => {
     if (mediaTargetField) {
-      updateConfig({ [mediaTargetField]: url } as any);
+      const finalUrl = url.trim();
+      if (mediaTargetField === 'heroBgVideoYouTubeId') {
+        const isDirect = isDirectVideoUrl(finalUrl);
+        const ytId = !isDirect ? extractYouTubeId(finalUrl) : null;
+        const finalVal = ytId || finalUrl;
+        updateConfig({
+          heroBgVideoYouTubeId: finalVal,
+          ...(isDirect ? { heroBgVideoMp4Url: finalVal } : {}),
+        });
+      } else if (mediaTargetField === 'heroBgPlaylistId') {
+        const plId = extractPlaylistId(finalUrl) || finalUrl;
+        updateConfig({
+          heroBgPlaylistId: plId,
+        });
+      } else {
+        updateConfig({ [mediaTargetField]: finalUrl } as any);
+      }
       notifySaved();
     }
   };
@@ -115,72 +133,166 @@ export const InPlaceEditorPopover: React.FC<InPlaceEditorPopoverProps> = ({ onCl
               
               {/* Mode Toggle */}
               <div>
-                <label className="block text-[11px] text-[#9daab4] mb-1">Playback Source Mode</label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-[11px] text-[#9daab4]">Playback Showcase Mode</label>
+                  <span className="text-[10px] font-mono text-[#66fcf1]">
+                    {config.heroBgSourceType === 'playlist' || config.heroBgSourceType === 'youtube-playlist' ? 'Playlist Active' : 'Single Reel Active'}
+                  </span>
+                </div>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
-                    onClick={() => updateConfig({ heroBgSourceType: 'single-video' })}
-                    className={`py-1.5 px-2 rounded-lg text-xs font-bold border transition-all ${
-                      config.heroBgSourceType !== 'playlist'
+                    onClick={() => {
+                      updateConfig({ heroBgSourceType: 'single-video' });
+                      notifySaved();
+                    }}
+                    className={`py-1.5 px-2 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
+                      config.heroBgSourceType !== 'playlist' && config.heroBgSourceType !== 'youtube-playlist'
                         ? 'bg-[#66fcf1]/20 border-[#66fcf1] text-[#66fcf1]'
-                        : 'bg-white/5 border-white/10 text-[#9daab4]'
+                        : 'bg-white/5 border-white/10 text-[#9daab4] hover:text-white'
                     }`}
                   >
-                    Single Reel
+                    Single Reel Showcase
                   </button>
                   <button
                     type="button"
-                    onClick={() => updateConfig({ heroBgSourceType: 'playlist' })}
-                    className={`py-1.5 px-2 rounded-lg text-xs font-bold border transition-all ${
-                      config.heroBgSourceType === 'playlist'
+                    onClick={() => {
+                      updateConfig({ heroBgSourceType: 'playlist' });
+                      notifySaved();
+                    }}
+                    className={`py-1.5 px-2 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
+                      config.heroBgSourceType === 'playlist' || config.heroBgSourceType === 'youtube-playlist'
                         ? 'bg-[#66fcf1]/20 border-[#66fcf1] text-[#66fcf1]'
-                        : 'bg-white/5 border-white/10 text-[#9daab4]'
+                        : 'bg-white/5 border-white/10 text-[#9daab4] hover:text-white'
                     }`}
                   >
-                    YT Playlist (Shuffle)
+                    YouTube Playlist Matrix
                   </button>
                 </div>
               </div>
 
-              {config.heroBgSourceType === 'playlist' ? (
-                <div>
-                  <label className="block text-[11px] text-[#66fcf1] font-bold mb-1">YouTube Playlist ID / URL</label>
+              {/* Single Reel Showcase Input */}
+              <div className={`p-2.5 rounded-lg border transition-all ${
+                config.heroBgSourceType !== 'playlist' && config.heroBgSourceType !== 'youtube-playlist'
+                  ? 'bg-black/40 border-[#66fcf1]/40'
+                  : 'bg-black/20 border-white/10'
+              }`}>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-[11px] text-[#66fcf1] font-bold flex items-center gap-1">
+                    <Film className="w-3 h-3" />
+                    <span>Single Reel Video (Looping)</span>
+                  </label>
+                  {config.heroBgSourceType !== 'playlist' && config.heroBgSourceType !== 'youtube-playlist' ? (
+                    <span className="text-[9px] font-mono text-[#66fcf1] font-bold">✓ ACTIVE</span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        updateConfig({ heroBgSourceType: 'single-video' });
+                        notifySaved();
+                      }}
+                      className="text-[9px] font-mono text-[#9daab4] hover:text-[#66fcf1] underline"
+                    >
+                      Set Active
+                    </button>
+                  )}
+                </div>
+                <div className="flex gap-2">
                   <input
                     type="text"
-                    value={config.heroBgPlaylistId}
+                    value={config.heroBgVideoYouTubeId}
                     onChange={(e) => {
                       const val = e.target.value;
-                      const match = val.match(/[?&]list=([^#&?]+)/);
-                      updateConfig({ heroBgPlaylistId: match ? match[1] : val.trim() });
+                      const plId = extractPlaylistId(val);
+                      if (plId && !extractYouTubeId(val)) {
+                        updateConfig({ heroBgPlaylistId: plId, heroBgSourceType: 'playlist' });
+                      } else if (isDirectVideoUrl(val)) {
+                        updateConfig({ heroBgVideoYouTubeId: val.trim(), heroBgVideoMp4Url: val.trim(), heroBgSourceType: 'single-video' });
+                      } else {
+                        const ytId = extractYouTubeId(val);
+                        updateConfig({ heroBgVideoYouTubeId: ytId || val.trim(), heroBgSourceType: 'single-video' });
+                      }
                     }}
-                    placeholder="PLrAl6sJc9k_..."
-                    className="w-full bg-[#05070b] border border-white/20 rounded-lg px-3 py-2 text-xs text-white focus:border-[#66fcf1] focus:outline-none font-mono"
+                    placeholder="e.g. oimtknXFil4 or full video link"
+                    className="flex-1 bg-[#05070b] border border-white/20 rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-[#66fcf1] focus:outline-none font-mono"
                   />
-                  <div className="flex items-center justify-between pt-1 text-[10px] text-[#9daab4]">
-                    <span>Shuffle Mode: Active</span>
-                    <span>Loop Mode: Active</span>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => openMediaPicker('heroBgVideoYouTubeId', 'video', 'Change Hero Video Showreel')}
+                    className="px-2.5 py-1.5 bg-[#66fcf1]/10 text-[#66fcf1] border border-[#66fcf1]/30 rounded-lg text-xs hover:bg-[#66fcf1] hover:text-black font-bold flex items-center gap-1 shrink-0"
+                  >
+                    <Film className="w-3.5 h-3.5" />
+                    <span>Reel</span>
+                  </button>
                 </div>
-              ) : (
-                <div>
-                  <label className="block text-[11px] text-[#9daab4] mb-1">Background YouTube Showreel ID</label>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={config.heroBgVideoYouTubeId}
-                      onChange={(e) => updateConfig({ heroBgVideoYouTubeId: e.target.value })}
-                      className="flex-1 bg-[#05070b] border border-white/20 rounded-lg px-3 py-2 text-xs text-white focus:border-[#66fcf1] focus:outline-none font-mono"
-                    />
+                <p className="text-[10px] text-[#9daab4] mt-1">
+                  Hero displays the <span className="text-[#66fcf1] font-bold">LOOP</span> button to loop this video continuously.
+                </p>
+              </div>
+
+              {/* YouTube Playlist Matrix Input */}
+              <div className={`p-2.5 rounded-lg border transition-all ${
+                config.heroBgSourceType === 'playlist' || config.heroBgSourceType === 'youtube-playlist'
+                  ? 'bg-black/40 border-[#66fcf1]/40'
+                  : 'bg-black/20 border-white/10'
+              }`}>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-[11px] text-[#66fcf1] font-bold flex items-center gap-1">
+                    <ListMusic className="w-3 h-3" />
+                    <span>YouTube Playlist Link or ID</span>
+                  </label>
+                  {config.heroBgSourceType === 'playlist' || config.heroBgSourceType === 'youtube-playlist' ? (
+                    <span className="text-[9px] font-mono text-[#66fcf1] font-bold">✓ ACTIVE</span>
+                  ) : (
                     <button
-                      onClick={() => openMediaPicker('heroBgVideoYouTubeId', 'video', 'Change Hero Video Showreel')}
-                      className="px-3 py-2 bg-[#66fcf1]/10 text-[#66fcf1] border border-[#66fcf1]/30 rounded-lg text-xs hover:bg-[#66fcf1] hover:text-black font-bold flex items-center gap-1"
+                      type="button"
+                      onClick={() => {
+                        updateConfig({ heroBgSourceType: 'playlist' });
+                        notifySaved();
+                      }}
+                      className="text-[9px] font-mono text-[#9daab4] hover:text-[#66fcf1] underline"
                     >
-                      <Film className="w-3.5 h-3.5" />
-                      <span>Reel</span>
+                      Set Active
                     </button>
-                  </div>
+                  )}
                 </div>
-              )}
+                <input
+                  type="text"
+                  value={config.heroBgPlaylistId}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    const plId = extractPlaylistId(val) || val.trim();
+                    updateConfig({ heroBgPlaylistId: plId, heroBgSourceType: 'playlist' });
+                  }}
+                  placeholder="Paste YouTube playlist URL (e.g. https://www.youtube.com/playlist?list=...)"
+                  className="w-full bg-[#05070b] border border-white/20 rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-[#66fcf1] focus:outline-none font-mono"
+                />
+                <div className="flex items-center justify-between pt-1 text-[10px] text-[#9daab4]">
+                  <span>Hero displays <span className="text-[#66fcf1] font-bold">FORWARD</span> button</span>
+                  <span className="text-[#00df81]">Auto-Next: Active</span>
+                </div>
+              </div>
+
+              {/* Fallback Image */}
+              <div>
+                <label className="block text-[11px] text-[#9daab4] mb-1">Fallback Poster Image</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={config.heroBgImageFallback}
+                    onChange={(e) => updateConfig({ heroBgImageFallback: e.target.value })}
+                    placeholder="https://..."
+                    className="flex-1 bg-[#05070b] border border-white/20 rounded-lg px-3 py-2 text-xs text-white focus:border-[#66fcf1] focus:outline-none font-mono"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => openMediaPicker('heroBgImageFallback', 'image', 'Change Hero Poster Image')}
+                    className="px-3 py-2 bg-white/10 text-white rounded-lg text-xs hover:bg-white/20 font-bold shrink-0"
+                  >
+                    Pick
+                  </button>
+                </div>
+              </div>
 
               <div>
                 <label className="block text-[11px] text-[#9daab4] mb-1">Hero Eyebrow</label>
@@ -191,32 +303,34 @@ export const InPlaceEditorPopover: React.FC<InPlaceEditorPopoverProps> = ({ onCl
                   className="w-full bg-[#05070b] border border-white/20 rounded-lg px-3 py-2 text-xs text-white focus:border-[#66fcf1] focus:outline-none"
                 />
               </div>
-              <div>
-                <label className="block text-[11px] text-[#9daab4] mb-1">Headline Line 1</label>
-                <input
-                  type="text"
-                  value={config.heroHeadlineLine1}
-                  onChange={(e) => updateConfig({ heroHeadlineLine1: e.target.value })}
-                  className="w-full bg-[#05070b] border border-white/20 rounded-lg px-3 py-2 text-xs text-white focus:border-[#66fcf1] focus:outline-none font-bold"
-                />
-              </div>
-              <div>
-                <label className="block text-[11px] text-[#9daab4] mb-1">Headline Gradient Focus</label>
-                <input
-                  type="text"
-                  value={config.heroHeadlineGradient}
-                  onChange={(e) => updateConfig({ heroHeadlineGradient: e.target.value })}
-                  className="w-full bg-[#05070b] border border-white/20 rounded-lg px-3 py-2 text-xs text-[#66fcf1] focus:border-[#66fcf1] focus:outline-none font-bold"
-                />
-              </div>
-              <div>
-                <label className="block text-[11px] text-[#9daab4] mb-1">Headline Line 3</label>
-                <input
-                  type="text"
-                  value={config.heroHeadlineLine3}
-                  onChange={(e) => updateConfig({ heroHeadlineLine3: e.target.value })}
-                  className="w-full bg-[#05070b] border border-white/20 rounded-lg px-3 py-2 text-xs text-white focus:border-[#66fcf1] focus:outline-none font-bold"
-                />
+              <div className="grid grid-cols-3 gap-2">
+                <div>
+                  <label className="block text-[10px] text-[#9daab4] mb-1">Headline 1</label>
+                  <input
+                    type="text"
+                    value={config.heroHeadlineLine1}
+                    onChange={(e) => updateConfig({ heroHeadlineLine1: e.target.value })}
+                    className="w-full bg-[#05070b] border border-white/20 rounded-lg px-2 py-1.5 text-xs text-white focus:border-[#66fcf1] focus:outline-none font-bold"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] text-[#66fcf1] mb-1">Gradient Center</label>
+                  <input
+                    type="text"
+                    value={config.heroHeadlineGradient}
+                    onChange={(e) => updateConfig({ heroHeadlineGradient: e.target.value })}
+                    className="w-full bg-[#05070b] border border-white/20 rounded-lg px-2 py-1.5 text-xs text-[#66fcf1] focus:border-[#66fcf1] focus:outline-none font-bold"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] text-[#9daab4] mb-1">Headline 3</label>
+                  <input
+                    type="text"
+                    value={config.heroHeadlineLine3}
+                    onChange={(e) => updateConfig({ heroHeadlineLine3: e.target.value })}
+                    className="w-full bg-[#05070b] border border-white/20 rounded-lg px-2 py-1.5 text-xs text-white focus:border-[#66fcf1] focus:outline-none font-bold"
+                  />
+                </div>
               </div>
               <div>
                 <label className="block text-[11px] text-[#9daab4] mb-1">Narrative Description</label>
@@ -226,6 +340,39 @@ export const InPlaceEditorPopover: React.FC<InPlaceEditorPopoverProps> = ({ onCl
                   onChange={(e) => updateConfig({ heroDescription: e.target.value })}
                   className="w-full bg-[#05070b] border border-white/20 rounded-lg p-2.5 text-xs text-white focus:border-[#66fcf1] focus:outline-none leading-relaxed"
                 />
+              </div>
+
+              {/* CTAs */}
+              <div className="pt-1 border-t border-white/10 space-y-2">
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[10px] text-[#9daab4] mb-1">Primary CTA</label>
+                    <input
+                      type="text"
+                      value={config.heroCtaPrimaryText}
+                      onChange={(e) => updateConfig({ heroCtaPrimaryText: e.target.value })}
+                      className="w-full bg-[#05070b] border border-white/20 rounded-lg px-2 py-1.5 text-xs text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] text-[#9daab4] mb-1">Secondary CTA</label>
+                    <input
+                      type="text"
+                      value={config.heroCtaSecondaryText}
+                      onChange={(e) => updateConfig({ heroCtaSecondaryText: e.target.value })}
+                      className="w-full bg-[#05070b] border border-white/20 rounded-lg px-2 py-1.5 text-xs text-white"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-[10px] text-[#9daab4] mb-1">RPW Connect Portal URL</label>
+                  <input
+                    type="text"
+                    value={config.connectPortalUrl}
+                    onChange={(e) => updateConfig({ connectPortalUrl: e.target.value })}
+                    className="w-full bg-[#05070b] border border-white/20 rounded-lg px-2 py-1.5 text-xs text-white font-mono"
+                  />
+                </div>
               </div>
             </div>
           )}
@@ -366,8 +513,33 @@ export const InPlaceEditorPopover: React.FC<InPlaceEditorPopoverProps> = ({ onCl
             </div>
           )}
 
+          {/* Target: Collaboration Showcase / Reels */}
+          {['collaboration', 'reels', 'portfolio'].includes(activeEditTarget) && (
+            <div className="space-y-3">
+              <h4 className="text-xs font-bold text-white uppercase font-mono">Showreel Wall Headline & Tagline</h4>
+              <div>
+                <label className="block text-[11px] text-[#9daab4] mb-1">Main Tagline</label>
+                <input
+                  type="text"
+                  value={config.collaborationTagline || 'COLLABORATION SHOWCASE'}
+                  onChange={(e) => updateConfig({ collaborationTagline: e.target.value })}
+                  className="w-full bg-[#05070b] border border-white/20 rounded-lg px-3 py-2 text-xs text-white focus:border-[#66fcf1] focus:outline-none font-bold"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] text-[#9daab4] mb-1">Sub-Description</label>
+                <input
+                  type="text"
+                  value={config.collaborationSubDescription || 'A shared celebration of our creative partnerships.'}
+                  onChange={(e) => updateConfig({ collaborationSubDescription: e.target.value })}
+                  className="w-full bg-[#05070b] border border-white/20 rounded-lg px-3 py-2 text-xs text-white focus:border-[#66fcf1] focus:outline-none"
+                />
+              </div>
+            </div>
+          )}
+
           {/* Target 6: Generic Fallback */}
-          {!['brand-logo', 'hero', 'partners', 'work', 'social'].includes(activeEditTarget) && (
+          {!['brand-logo', 'hero', 'partners', 'work', 'social', 'collaboration', 'reels', 'portfolio'].includes(activeEditTarget) && (
             <div className="space-y-3">
               <h4 className="text-xs font-bold text-white uppercase font-mono">Editing: {activeEditTarget}</h4>
               <p className="text-xs text-[#9daab4]">
